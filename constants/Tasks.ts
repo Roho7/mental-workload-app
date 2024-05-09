@@ -1,0 +1,98 @@
+import { TaskType } from "@/components/ui/TaskCard";
+
+export const tasksDemo: TaskType[] = [
+  {
+    bucket: "Development",
+    title: "Implement login feature",
+    description:
+      "Add a new login page for user authentication using JWT tokens.",
+    status: "done",
+    mentalWorkload: 4,
+    dueDate: "2024-04-20",
+    priority: "high",
+  },
+  {
+    bucket: "Marketing",
+    title: "Newsletter design",
+    description: "Design the monthly newsletter with updated company news.",
+    status: "pending",
+    mentalWorkload: 3,
+    dueDate: "2024-05-15",
+    priority: "medium",
+  },
+  {
+    bucket: "HR",
+    title: "Annual review preparation",
+    description:
+      "Prepare all documents for the upcoming annual employee reviews.",
+    status: "pending",
+    mentalWorkload: 5,
+    dueDate: "2024-06-01",
+    priority: "high",
+  },
+  {
+    bucket: "Development",
+    title: "Database optimization",
+    description: "Optimize the current database schema to enhance performance.",
+    status: "overdue",
+    mentalWorkload: 6,
+    dueDate: "2024-04-10",
+    priority: "high",
+  },
+  {
+    bucket: "Customer Support",
+    title: "Update FAQ",
+    description:
+      "Update the FAQ section on the website with the latest questions and answers.",
+    status: "done",
+    mentalWorkload: 2,
+    dueDate: "2024-05-01",
+    priority: "low",
+  },
+  {
+    bucket: "Finance",
+    title: "Budget report Q2",
+    description: "Compile and review the budget report for the second quarter.",
+    status: "pending",
+    mentalWorkload: 7,
+    dueDate: "2024-05-20",
+    priority: "medium",
+  },
+  {
+    bucket: "Operations",
+    title: "Warehouse audit",
+    description: "Conduct a full audit of the warehouse inventory.",
+    status: "overdue",
+    mentalWorkload: 8,
+    dueDate: "2024-04-15",
+    priority: "high",
+  },
+  {
+    bucket: "Development",
+    title: "API development for new services",
+    description:
+      "Develop APIs to support new services to be launched next quarter.",
+    status: "pending",
+    mentalWorkload: 5,
+    dueDate: "2024-06-10",
+    priority: "high",
+  },
+  {
+    bucket: "Sales",
+    title: "Client outreach strategy",
+    description: "Develop a new outreach strategy to engage potential clients.",
+    status: "done",
+    mentalWorkload: 3,
+    dueDate: "2024-05-25",
+    priority: "medium",
+  },
+  {
+    bucket: "HR",
+    title: "Recruitment drive",
+    description: "Organize a recruitment drive for new technical staff.",
+    status: "overdue",
+    mentalWorkload: 4,
+    dueDate: "2024-04-05",
+    priority: "high",
+  },
+];
