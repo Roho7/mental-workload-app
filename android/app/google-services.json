@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "259742826474",
+    "project_id": "mental-workload-app",
+    "storage_bucket": "mental-workload-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259742826474:android:ef1c23063386f48ee7fc93",
+        "android_client_info": {
+          "package_name": "serotonin.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "259742826474-b64ddro6uja31j6qpnjp08gpahq65j5t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjxV4mRGkViuliAP3cPjcSO7arPL7GFyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "259742826474-b64ddro6uja31j6qpnjp08gpahq65j5t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "259742826474-ci6gu2gihunnbnlcnd4n3i30n9sanmim.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "serotonin.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
