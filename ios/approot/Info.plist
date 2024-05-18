@@ -31,12 +31,6 @@
           <string>serotonin.app</string>
         </array>
       </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>com.googleusercontent.apps.259742826474-ci6gu2gihunnbnlcnd4n3i30n9sanmim</string>
-        </array>
-      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
