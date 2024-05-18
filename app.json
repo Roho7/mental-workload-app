@@ -12,16 +12,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
       "bundleIdentifier": "serotonin.app"
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -35,13 +31,10 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-google-signin/google-signin",
       [
         "expo-font",
         {
-          "font": [
-            "./assets/fonts/Inter.ttf"
-          ]
+          "font": ["./assets/fonts/Inter.ttf"]
         }
       ]
     ],

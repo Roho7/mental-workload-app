@@ -6,10 +6,12 @@ import Colors from '@/constants/Colors';
 import { Feather } from '@expo/vector-icons';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof Feather>['name'];
-  color: string;
-}) {
+function TabBarIcon(
+  props: {
+    name: React.ComponentProps<typeof Feather>['name'];
+    color: string;
+  } & React.ComponentProps<typeof Feather>
+) {
   return (
     <Feather
       size={28}
@@ -33,8 +35,32 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
+          title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          headerRight: () => (
+            <Link href="/modal" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="info-circle"
+                    size={25}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="add-task"
+        options={{
+          title: 'Add Task',
+
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="plus-circle" color={color} />
+          ),
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>

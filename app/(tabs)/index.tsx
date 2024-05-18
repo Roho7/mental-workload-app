@@ -17,9 +17,6 @@ export default function TabOneScreen() {
           <Text className="text-sm text-gray-400">
             You have 5 tasks remaining today
           </Text>
-          <Pressable>
-            <Feather name="sun" />
-          </Pressable>
         </View>
         <View className="rounded-lg border border-gray-200 p-4">
           <Text className="text-2xl">Your Day</Text>
