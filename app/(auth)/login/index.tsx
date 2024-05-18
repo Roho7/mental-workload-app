@@ -4,22 +4,28 @@ import { StyleSheet } from 'react-native';
 
 import { TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import GoogleLoginButton from '../components/google';
 
 type Props = {};
 
 const LoginPage = (props: Props) => {
   return (
-    <SafeAreaView className="flex h-full flex-col items-center p-4">
-      <Text>Login</Text>
+    <SafeAreaView
+      className="flex h-full flex-col items-center justify-center p-4"
+      style={{ rowGap: 16 }}
+    >
+      <Text className="text-xl">Login</Text>
       <View className="flex w-full flex-col items-center" style={{ rowGap: 8 }}>
         <TextInput
           placeholder="Email"
-          className="w-40 rounded-sm bg-gray-200 p-2"
+          className="w-[70vw] rounded-md bg-gray-200 p-4"
         />
         <TextInput
           placeholder="Password"
-          className="w-40 rounded-sm bg-gray-200 p-2"
+          className="w-[70vw] rounded-md bg-gray-200 p-4"
         />
+
+        <Text>or</Text>
       </View>
     </SafeAreaView>
   );
