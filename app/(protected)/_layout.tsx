@@ -1,6 +1,6 @@
 import { TaskProvider } from '@/components/hooks/useTasks';
 import Colors from '@/constants/Colors';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, router, Tabs } from 'expo-router';
 import { getAuth } from 'firebase/auth';
@@ -94,7 +94,7 @@ export default function TabLayout() {
           options={{
             title: 'Mental Workload',
             tabBarIcon: ({ color }) => (
-              <TabBarIcon name="target" color={color} />
+              <FontAwesome5 name="brain" size={28} color={color} />
             ),
           }}
         />

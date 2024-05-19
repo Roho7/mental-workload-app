@@ -4,7 +4,7 @@ import MwlBadge, { MwlMap } from '@/components/ui/MwlBadge';
 import PriorityBadge, { PriorityMap } from '@/components/ui/PriorityBadge';
 import { db } from '@/utils/firebase';
 import { router } from 'expo-router';
-import { addDoc, collection } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import uuid from 'react-native-uuid';
@@ -34,13 +34,12 @@ const AddTask = ({}) => {
       priority: priority,
       mwl: mwl,
       due_date: date,
-      task_id: uuid.v1(),
+      task_id: uuid.v4().toString(),
     };
-    const data = await addDoc(collection(db, 'tbl_tasks'), insertData);
-    if (data) {
-      reset();
-      router.back();
-    }
+    await setDoc(doc(db, 'tbl_tasks', insertData.task_id), insertData);
+
+    reset();
+    router.back();
   };
 
   const reset = () => {
@@ -61,6 +60,7 @@ const AddTask = ({}) => {
           placeholder="New Task"
           fontSize="$8"
           onChange={(e) => setTitle(e.nativeEvent.text)}
+          value={title}
         />
         <TextArea
           placeholder="Description"
@@ -69,6 +69,7 @@ const AddTask = ({}) => {
           fontSize="$4"
           style={{ height: 100 }}
           onChange={(e) => setDescription(e.nativeEvent.text)}
+          value={description}
         />
         <Dropdown
           action={() => setPriority}
