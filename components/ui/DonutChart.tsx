@@ -1,27 +1,38 @@
-import React, { ReactNode } from 'react';
+import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Text } from 'react-native-svg';
+import { useTasks } from '../hooks/useTasks';
 
-const radius = 30;
+const radius = 40;
 const strokeWidth = 7;
 const circumference = 2 * Math.PI * radius;
-const progress = 0.75; // Assuming 75% progress
-
-// Calculate the offset to start from the top
-const progressPercentage = circumference * (1 - progress);
 
 function DonutChart() {
+  const { completedTasks, todaysTasks } = useTasks();
+  const progress = useMemo(
+    () =>
+      todaysTasks.length > 0 ? completedTasks.length / todaysTasks.length : 1,
+    [completedTasks, todaysTasks]
+  );
+
+  const isCompleted = useMemo(
+    () =>
+      completedTasks.length === todaysTasks.length && todaysTasks.length > 0,
+    [completedTasks, todaysTasks]
+  );
   return (
-    <View style={{ height: 200 }} className="relative">
-      <Svg width="200" height="200" viewBox="0 0 100 100" className="">
+    <View style={{ height: 200, position: 'relative' }}>
+      <Svg width="200" height="200" viewBox="0 0 100 100">
         <Circle
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          stroke={'#F3F4F6'}
+          stroke={'#1F2839'}
           cx="50"
           cy="50"
-          r={radius + 10}
+          r={radius}
           fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * 100}
           transform="rotate(-90, 50, 50)"
         />
         <Circle
@@ -33,34 +44,29 @@ function DonutChart() {
           r={radius}
           fill="transparent"
           strokeDasharray={circumference}
-          strokeDashoffset={progressPercentage}
-          transform="rotate(-90, 50, 50)"
-        />
-        <Circle
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          stroke={'#0362FF'}
-          cx="50"
-          cy="50"
-          r={radius + 10}
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={progressPercentage}
+          strokeDashoffset={circumference * (1 - progress)}
           transform="rotate(-90, 50, 50)"
         />
 
-        <Text x="50%" y="48%" textAnchor="middle" fill="grey" dy=".2em">
-          3/5
-        </Text>
+        {!isCompleted ? (
+          <Text x="50%" y="48%" textAnchor="middle" fill="grey" dy=".2em">
+            {todaysTasks.length - completedTasks.length}
+          </Text>
+        ) : (
+          <Text x="50%" y="45%" textAnchor="middle" fill="grey" dy=".2em">
+            🎊
+          </Text>
+        )}
+
         <Text
           x="50%"
           y="56%"
           textAnchor="middle"
-          fill="grey"
+          fill={isCompleted ? '#34D399' : 'grey'}
           dy=".2em"
           fontSize={4}
         >
-          tasks remaining
+          {isCompleted ? "You're done for the day!" : 'tasks remaining'}
         </Text>
       </Svg>
     </View>

@@ -8,7 +8,7 @@ import { H1, H4, ScrollView, Text, View, YStack } from 'tamagui';
 
 export default function TabOneScreen() {
   const { logout, user } = useAuth();
-  const { tasks } = useTasks();
+  const { todaysTasks } = useTasks();
 
   return (
     <ScrollView>
@@ -32,11 +32,13 @@ export default function TabOneScreen() {
               <DonutChart />
             </View>
           </View>
-          <Text className="text-2xl">Tasks</Text>
+          <Text className="text-2xl">Today's Tasks</Text>
           <ScrollView maxHeight="$20">
-            {tasks &&
-              tasks?.length > 0 &&
-              tasks?.map((task, index) => <TaskCard {...task} key={index} />)}
+            {todaysTasks &&
+              todaysTasks?.length > 0 &&
+              todaysTasks?.map((task, index) => (
+                <TaskCard task={task} key={index} />
+              ))}
           </ScrollView>
         </YStack>
       </SafeAreaView>
