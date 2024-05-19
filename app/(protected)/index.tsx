@@ -1,5 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/components/hooks/useAuth';
 import DonutChart from '@/components/ui/DonutChart';
 import TaskCard, { TaskType } from '@/components/ui/TaskCard';
 import { db } from '@/utils/firebase';
@@ -8,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { H1, H4, ScrollView, Text, View, YStack } from 'tamagui';
 
 export default function TabOneScreen() {
+  const { logout, user } = useAuth();
   const [tasks, setTasks] = useState<TaskType[] | null>(null);
   useEffect(() => {
     const taskRef = collection(db, 'tbl_tasks');
@@ -18,7 +20,6 @@ export default function TabOneScreen() {
           ...(doc.data() as TaskType),
         }));
         setTasks(tasks as TaskType[]);
-        console.log('tasks', tasks);
       },
     });
     return () => subscriber();
@@ -28,8 +29,9 @@ export default function TabOneScreen() {
       <SafeAreaView>
         <YStack padding="$4" gap="$4">
           <View>
-            <H1>Hi Roho!</H1>
+            <H1>Hi {user?.email || 'user'}</H1>
             <H4 color="$accentBackground">You have 5 tasks remaining today</H4>
+            <H4 onPress={() => logout()}>Logout</H4>
           </View>
           <View
             borderColor="$blue4"

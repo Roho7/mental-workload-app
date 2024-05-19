@@ -5,7 +5,6 @@ import PriorityBadge, { PriorityMap } from '@/components/ui/PriorityBadge';
 import { db } from '@/utils/firebase';
 import { router } from 'expo-router';
 import { addDoc, collection } from 'firebase/firestore';
-
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import uuid from 'react-native-uuid';
@@ -39,8 +38,17 @@ const AddTask = ({}) => {
     };
     const data = await addDoc(collection(db, 'tbl_tasks'), insertData);
     if (data) {
+      reset();
       router.back();
     }
+  };
+
+  const reset = () => {
+    setTitle('');
+    setDescription('');
+    setPriority(0);
+    setMwl(1);
+    setDate(null);
   };
   return (
     <SafeAreaView>

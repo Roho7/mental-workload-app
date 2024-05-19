@@ -1,9 +1,11 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
 import { Feather } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Link, router, Tabs } from 'expo-router';
+import { getAuth } from 'firebase/auth';
+import React, { useState } from 'react';
+import { Pressable, useColorScheme } from 'react-native';
+import { Text } from 'tamagui';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(
@@ -22,8 +24,17 @@ function TabBarIcon(
 }
 
 export default function TabLayout() {
+  const [isLoading, setIsLoading] = useState(true);
   const colorScheme = useColorScheme();
-
+  getAuth().onAuthStateChanged((user) => {
+    setIsLoading(false);
+    if (!user) {
+      router.replace('/(public)/login');
+    }
+  });
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
   return (
     <Tabs
       screenOptions={{
