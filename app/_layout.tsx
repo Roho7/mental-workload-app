@@ -1,17 +1,12 @@
+import tamaguiConfig from '@/tamagui.config';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
-import { AuthProvider, useAuth } from '../components/hooks/useAuth';
-import RootStack from './(stacks)/RootStack';
 import { TamaguiProvider, Theme } from 'tamagui';
-import tamaguiConfig from '@/tamagui.config';
+import { AuthProvider } from '../components/hooks/useAuth';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -54,5 +49,5 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  return <RootStack />;
+  return <Slot />;
 }
