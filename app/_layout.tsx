@@ -7,6 +7,7 @@ import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { EventProvider } from 'react-native-outside-press';
 import { TamaguiProvider, Theme } from 'tamagui';
 import { AuthProvider } from '../components/hooks/useAuth';
 
@@ -55,5 +56,9 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  return <Slot />;
+  return (
+    <EventProvider>
+      <Slot />
+    </EventProvider>
+  );
 }
