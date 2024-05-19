@@ -10,6 +10,8 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { AuthProvider, useAuth } from '../components/hooks/useAuth';
 import RootStack from './(stacks)/RootStack';
+import { TamaguiProvider, Theme } from 'tamagui';
+import tamaguiConfig from '@/tamagui.config';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -40,7 +42,13 @@ export default function RootLayout() {
   }
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <TamaguiProvider config={tamaguiConfig}>
+        <ThemeProvider value={DarkTheme}>
+          <Theme name="dark_blue">
+            <RootLayoutNav />
+          </Theme>
+        </ThemeProvider>
+      </TamaguiProvider>
     </AuthProvider>
   );
 }

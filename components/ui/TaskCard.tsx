@@ -1,15 +1,17 @@
+import { Timestamp } from 'firebase/firestore';
 import React from 'react';
-import { View, Text } from '../Themed';
-import PriorityBadge from './PriorityBadge';
+
+import { H4, Text, View, XStack, YStack } from 'tamagui';
 import MwlBadge from './MwlBadge';
+import PriorityBadge from './PriorityBadge';
 
 export type TaskType = {
-  bucket: string;
+  bucket?: string;
   title: string;
   description: string;
-  status: 'done' | 'pending' | 'overdue';
+  status?: 'done' | 'pending' | 'overdue';
   mentalWorkload: number;
-  dueDate: string;
+  due_date: Timestamp;
   priority: 1 | 2 | 3 | 4 | 0;
 };
 
@@ -18,26 +20,33 @@ const TaskCard = ({
   title,
   description,
   status,
-  dueDate,
+  due_date,
   priority,
   mentalWorkload,
 }: TaskType) => {
   return (
-    <View className="my-2 w-full rounded-md border border-gray-200 bg-gray-50 p-4">
-      <Text className="text-xs text-gray-400">{bucket}</Text>
-      <View className="flex flex-row items-center justify-between">
-        <Text className="text-lg font-medium">{title}</Text>
-        <View className="flex flex-row items-center" style={{ columnGap: 4 }}>
+    <YStack
+      backgroundColor="$background"
+      padding="$4"
+      borderRadius="$4"
+      gap="$2"
+      borderColor="$blue7"
+      borderWidth="$0.25"
+      marginBlock="$2"
+    >
+      {bucket && <Text color="$placeholderColor">{bucket}</Text>}
+      <XStack alignItems="center" justifyContent="space-between">
+        <H4>{title}</H4>
+        <View gap="$2" display="flex" flexDirection="row" alignItems="center">
           <MwlBadge load={mentalWorkload} />
           <PriorityBadge priority={priority} />
         </View>
+      </XStack>
+      <Text color="$gray10">{description}</Text>
+      <View gap="$2" display="flex" flexDirection="row">
+        <Text color="$blue8">{due_date?.toDate().toDateString()}</Text>
       </View>
-      <Text className="text-sm text-gray-800">{description}</Text>
-      <View className="flex flex-row justify-between gap-2 ">
-        <Text className="text-xs text-gray-400">{dueDate}</Text>
-        <Text className="text-xs text-gray-400">{priority}</Text>
-      </View>
-    </View>
+    </YStack>
   );
 };
 

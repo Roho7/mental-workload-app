@@ -49,14 +49,14 @@ function DonutChart() {
           transform="rotate(-90, 50, 50)"
         />
 
-        <Text x="50%" y="48%" textAnchor="middle" fill="#000" dy=".2em">
+        <Text x="50%" y="48%" textAnchor="middle" fill="grey" dy=".2em">
           3/5
         </Text>
         <Text
           x="50%"
           y="56%"
           textAnchor="middle"
-          fill="#000"
+          fill="grey"
           dy=".2em"
           fontSize={4}
         >
