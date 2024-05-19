@@ -1,43 +1,74 @@
-import { View, Text, Pressable } from 'react-native';
 import React, { useState } from 'react';
-import { Feather } from '@expo/vector-icons';
+import {
+  Popover,
+  Adapt,
+  YStack,
+  XStack,
+  Label,
+  Input,
+  PopoverProps,
+  Button,
+} from 'tamagui';
 
 type DropdownProps = {
   children: React.ReactNode;
   elements: React.ReactNode[];
-  action: () => void;
+  action?: () => void;
 };
 
-const Dropdown = ({ children, elements, action }: DropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const Dropdown = ({
+  children,
+  elements,
+  action,
+  ...props
+}: PopoverProps & DropdownProps) => {
   return (
-    <View className="relative">
-      <Pressable
-        className="flex max-w-xs flex-row justify-between rounded-md border border-gray-200 p-2"
-        onPress={() => setIsOpen(!isOpen)}
+    <Popover size="$5" allowFlip {...props}>
+      <Popover.Trigger asChild>
+        <Button> {children}</Button>
+      </Popover.Trigger>
+
+      <Adapt when="sm" platform="touch">
+        <Popover.Sheet modal dismissOnSnapToBottom>
+          <Popover.Sheet.Frame padding="$4">
+            <Adapt.Contents />
+          </Popover.Sheet.Frame>
+          <Popover.Sheet.Overlay
+            animation="lazy"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
+        </Popover.Sheet>
+      </Adapt>
+
+      <Popover.Content
+        borderWidth={1}
+        borderColor="$borderColor"
+        enterStyle={{ y: -10, opacity: 0 }}
+        exitStyle={{ y: -10, opacity: 0 }}
+        elevate
+        animation={[
+          'quick',
+          {
+            opacity: {
+              overshootClamping: true,
+            },
+          },
+        ]}
       >
-        {children}
-        <Feather
-          name="chevron-down"
-          size={16}
-          style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
-        />
-      </Pressable>
-      {isOpen && (
-        <View className="absolute left-0 top-10 max-h-max w-full max-w-xs rounded-md bg-white p-2 shadow-md">
-          {elements.map((element, index) => (
-            <Pressable
-              key={index}
-              onPress={() => {
-                setIsOpen(false);
-              }}
-            >
-              {element}
-            </Pressable>
-          ))}
-        </View>
-      )}
-    </View>
+        <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
+
+        <YStack space="$3">
+          {elements.map((element, index) => {
+            return (
+              <Popover.Close asChild key={index}>
+                {element}
+              </Popover.Close>
+            );
+          })}
+        </YStack>
+      </Popover.Content>
+    </Popover>
   );
 };
 

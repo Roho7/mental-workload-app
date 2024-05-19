@@ -8,7 +8,7 @@ export const tasksDemo: TaskType[] = [
       'Add a new login page for user authentication using JWT tokens.',
     status: 'done',
     mentalWorkload: 4,
-    dueDate: '2024-04-20',
+    due_date: new Date('2024-05-10'),
     priority: 1,
   },
   {
@@ -17,7 +17,7 @@ export const tasksDemo: TaskType[] = [
     description: 'Design the monthly newsletter with updated company news.',
     status: 'pending',
     mentalWorkload: 3,
-    dueDate: '2024-05-15',
+    due_date: new Date('2024-05-15'),
     priority: 2,
   },
   {
@@ -27,7 +27,7 @@ export const tasksDemo: TaskType[] = [
       'Prepare all documents for the upcoming annual employee reviews.',
     status: 'pending',
     mentalWorkload: 5,
-    dueDate: '2024-06-01',
+    due_date: new Date('2024-06-01'),
     priority: 3,
   },
   {
@@ -36,7 +36,7 @@ export const tasksDemo: TaskType[] = [
     description: 'Optimize the current database schema to enhance performance.',
     status: 'overdue',
     mentalWorkload: 2,
-    dueDate: '2024-04-10',
+    due_date: new Date('2024-04-10'),
     priority: 4,
   },
   {
@@ -46,7 +46,7 @@ export const tasksDemo: TaskType[] = [
       'Update the FAQ section on the website with the latest questions and answers.',
     status: 'done',
     mentalWorkload: 2,
-    dueDate: '2024-05-01',
+    due_date: new Date('2024-05-01'),
     priority: 0,
   },
   {
@@ -55,7 +55,7 @@ export const tasksDemo: TaskType[] = [
     description: 'Compile and review the budget report for the second quarter.',
     status: 'pending',
     mentalWorkload: 1,
-    dueDate: '2024-05-20',
+    due_date: new Date('2024-05-20'),
     priority: 4,
   },
   {
@@ -64,7 +64,7 @@ export const tasksDemo: TaskType[] = [
     description: 'Conduct a full audit of the warehouse inventory.',
     status: 'overdue',
     mentalWorkload: 1,
-    dueDate: '2024-04-15',
+    due_date: new Date('2024-04-15'),
     priority: 0,
   },
   {
@@ -74,7 +74,7 @@ export const tasksDemo: TaskType[] = [
       'Develop APIs to support new services to be launched next quarter.',
     status: 'pending',
     mentalWorkload: 3,
-    dueDate: '2024-06-10',
+    due_date: new Date('2024-06-10'),
     priority: 4,
   },
   {
@@ -83,7 +83,7 @@ export const tasksDemo: TaskType[] = [
     description: 'Develop a new outreach strategy to engage potential clients.',
     status: 'done',
     mentalWorkload: 3,
-    dueDate: '2024-05-25',
+    due_date: new Date('2024-05-25'),
     priority: 4,
   },
   {
@@ -92,7 +92,7 @@ export const tasksDemo: TaskType[] = [
     description: 'Organize a recruitment drive for new technical staff.',
     status: 'overdue',
     mentalWorkload: 4,
-    dueDate: '2024-04-05',
+    due_date: new Date('2024-04-05'),
     priority: 2,
   },
 ];
