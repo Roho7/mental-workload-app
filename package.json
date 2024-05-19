@@ -18,6 +18,8 @@
     "@react-native-community/datetimepicker": "^8.0.1",
     "@react-navigation/native": "^6.0.2",
     "@tamagui/config": "^1.98.1",
+    "@tamagui/toast": "^1.98.1",
+    "burnt": "^0.12.2",
     "clsx": "^2.1.1",
     "expo": "~50.0.17",
     "expo-application": "~5.8.4",

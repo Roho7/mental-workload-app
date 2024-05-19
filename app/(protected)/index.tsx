@@ -1,35 +1,21 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/components/hooks/useAuth';
+import { useTasks } from '@/components/hooks/useTasks';
 import DonutChart from '@/components/ui/DonutChart';
-import TaskCard, { TaskType } from '@/components/ui/TaskCard';
-import { db } from '@/utils/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import TaskCard from '@/components/ui/TaskCard';
 import { H1, H4, ScrollView, Text, View, YStack } from 'tamagui';
 
 export default function TabOneScreen() {
   const { logout, user } = useAuth();
-  const [tasks, setTasks] = useState<TaskType[] | null>(null);
-  useEffect(() => {
-    const taskRef = collection(db, 'tbl_tasks');
+  const { tasks } = useTasks();
 
-    const subscriber = onSnapshot(taskRef, {
-      next: (snapshot) => {
-        const tasks = snapshot.docs.map((doc) => ({
-          ...(doc.data() as TaskType),
-        }));
-        setTasks(tasks as TaskType[]);
-      },
-    });
-    return () => subscriber();
-  }, []);
   return (
     <ScrollView>
       <SafeAreaView>
         <YStack padding="$4" gap="$4">
           <View>
-            <H1>Hi {user?.email || 'user'}</H1>
+            <H1>Hi {user?.displayName || 'user'}</H1>
             <H4 color="$accentBackground">You have 5 tasks remaining today</H4>
             <H4 onPress={() => logout()}>Logout</H4>
           </View>

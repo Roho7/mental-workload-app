@@ -1,9 +1,11 @@
 import { auth } from '@/utils/firebase';
+import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  updateProfile,
   User,
 } from 'firebase/auth';
 import React, {
@@ -17,7 +19,7 @@ import React, {
 type AuthContextType = {
   user: User | null;
   login: (username: string, password: string) => void;
-  signup: (username: string, password: string) => void;
+  signup: (email: string, username: string, password: string) => void;
   logout: () => void;
   setUser: (user: User) => void;
 };
@@ -26,12 +28,21 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const toast = useToastController();
 
-  const signup = async (username: string, password: string) => {
+  const signup = async (email: string, username: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, username, password);
-      const res = await signInWithEmailAndPassword(auth, username, password);
-      setUser(res.user);
+      console.log(email, username, password);
+      const new_user = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      await updateProfile(new_user.user, { displayName: username });
+
+      setUser(new_user.user);
+      router.replace('/(protected)');
     } catch (error) {
       console.error(error);
       throw new Error('Failed to login User');
@@ -43,10 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const res = await signInWithEmailAndPassword(auth, username, password);
       setUser(res.user);
       router.replace('/(protected)');
-      console.log('user', res.user);
+      toast.show('Successfully signed in.', { native: false });
     } catch (error) {
-      console.error(error);
-      throw new Error('Failed to signin User');
+      toast.show('Error signing in.', { native: false });
     }
   };
 
