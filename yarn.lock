@@ -3720,6 +3720,25 @@
   resolved "https://registry.npmjs.org/@tamagui/timer/-/timer-1.98.1.tgz"
   integrity sha512-tF1W8JiWHPTTh2jvmd+dai/+sQvjJ9V+mxGuIn/UTRvXznnXAq+FRI142B8UcwBji5GovK8VJbA+A1uMUobkcA==
 
+"@tamagui/toast@^1.98.1":
+  version "1.98.1"
+  resolved "https://registry.yarnpkg.com/@tamagui/toast/-/toast-1.98.1.tgz#672a77a736517f6d22fef6eb2a32016b43e33c9f"
+  integrity sha512-rAIDfGcU2m73zU7LnlhzRSY85/svcVw1YeCp1y/9ccj+jdZPt5gHO2Fg8Jd2qxlhVrMDusJvBoqbid8d7mkEUQ==
+  dependencies:
+    "@tamagui/animate-presence" "1.98.1"
+    "@tamagui/compose-refs" "1.98.1"
+    "@tamagui/constants" "1.98.1"
+    "@tamagui/core" "1.98.1"
+    "@tamagui/create-context" "1.98.1"
+    "@tamagui/dismissable" "1.98.1"
+    "@tamagui/helpers" "1.98.1"
+    "@tamagui/polyfill-dev" "1.98.1"
+    "@tamagui/portal" "1.98.1"
+    "@tamagui/stacks" "1.98.1"
+    "@tamagui/text" "1.98.1"
+    "@tamagui/use-controllable-state" "1.98.1"
+    "@tamagui/visually-hidden" "1.98.1"
+
 "@tamagui/toggle-group@1.98.1":
   version "1.98.1"
   resolved "https://registry.npmjs.org/@tamagui/toggle-group/-/toggle-group-1.98.1.tgz"
@@ -4592,6 +4611,14 @@ builtins@^1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/builtins/-/builtins-1.0.3.tgz"
   integrity sha512-uYBjakWipfaO/bXI7E8rq6kpwHRZK5cNYrUv2OzZSI/FvmdMyXJ2tG9dKcjEC5YHmHpUAwsargWIZNWdxb/bnQ==
+
+burnt@^0.12.2:
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/burnt/-/burnt-0.12.2.tgz#827dfb8fe2b5844d52060d9aa61dd9a683902d52"
+  integrity sha512-bbZjGN4Om7dykr8ZcLb0tTO5L2becMR+HIez1ySUGgG/rvK+ePgBEuBA6lMOZqOTsUXhIKFUBH0sCXQ25fq5SA==
+  dependencies:
+    sf-symbols-typescript "^1.0.0"
+    sonner "^0.3.5"
 
 bytes@3.0.0:
   version "3.0.0"
@@ -9563,6 +9590,11 @@ setprototypeof@1.2.0:
   resolved "https://registry.npmjs.org/setprototypeof/-/setprototypeof-1.2.0.tgz"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
+sf-symbols-typescript@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/sf-symbols-typescript/-/sf-symbols-typescript-1.0.0.tgz#94e9210bf27e7583f9749a0d07bd4f4937ea488f"
+  integrity sha512-DkS7q3nN68dEMb4E18HFPDAvyrjDZK9YAQQF2QxeFu9gp2xRDXFMF8qLJ1EmQ/qeEGQmop4lmMM1WtYJTIcCMw==
+
 shallow-clone@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmjs.org/shallow-clone/-/shallow-clone-3.0.1.tgz"
@@ -9663,6 +9695,11 @@ slugify@^1.3.4, slugify@^1.6.6:
   version "1.6.6"
   resolved "https://registry.npmjs.org/slugify/-/slugify-1.6.6.tgz"
   integrity sha512-h+z7HKHYXj6wJU+AnS/+IH8Uh9fdcX1Lrhg1/VMdf9PwoBQXFcXiAdsy2tSK0P6gKwJLXp02r90ahUCqHk9rrw==
+
+sonner@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/sonner/-/sonner-0.3.5.tgz#5ef175732cb7b637c6460620ab01a0fba0e6a36b"
+  integrity sha512-yIwaQ4dftMvFApuruto2t7wGyyaPRpj5qYBWYJIz4Z7uGcVn0IfqI/hWN0JyJN4izNbZFuCYZISf3fOGnvSlNQ==
 
 sort-keys@^2.0.0:
   version "2.0.0"
