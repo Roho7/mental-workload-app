@@ -10,7 +10,7 @@ export type TaskType = {
   title: string;
   description: string;
   status?: 'done' | 'pending' | 'overdue';
-  mentalWorkload: number;
+  mwl: number;
   due_date: Timestamp;
   priority: 1 | 2 | 3 | 4 | 0;
 };
@@ -22,7 +22,7 @@ const TaskCard = ({
   status,
   due_date,
   priority,
-  mentalWorkload,
+  mwl,
 }: TaskType) => {
   return (
     <YStack
@@ -38,7 +38,7 @@ const TaskCard = ({
       <XStack alignItems="center" justifyContent="space-between">
         <H4>{title}</H4>
         <View gap="$2" display="flex" flexDirection="row" alignItems="center">
-          <MwlBadge load={mentalWorkload} />
+          <MwlBadge load={mwl} />
           <PriorityBadge priority={priority} />
         </View>
       </XStack>
