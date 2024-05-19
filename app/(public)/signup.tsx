@@ -9,14 +9,13 @@ type Props = {};
 
 const SignupPage = (props: Props) => {
   const { signup, user, login } = useAuth();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  console.log('user', user);
-
   const handleSignUp = async () => {
     try {
-      signup(email, password);
+      signup(email, username, password);
     } catch (error) {
       console.error(error);
     }
@@ -27,6 +26,13 @@ const SignupPage = (props: Props) => {
       <YStack alignItems="center" marginBlock="auto" rowGap="$4" width="full">
         <H3>Create a new Account</H3>
         <View rowGap="$2" alignItems="center">
+          <Input
+            placeholder="Username"
+            onChange={(e) => {
+              setUsername(e.nativeEvent.text);
+            }}
+            width="$20"
+          />
           <Input
             placeholder="Email"
             onChange={(e) => {

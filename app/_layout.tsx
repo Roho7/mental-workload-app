@@ -1,6 +1,8 @@
+import AppToast from '@/components/ui/Toast';
 import tamaguiConfig from '@/tamagui.config';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { ToastProvider, ToastViewport } from '@tamagui/toast';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -40,7 +42,11 @@ export default function RootLayout() {
       <TamaguiProvider config={tamaguiConfig}>
         <ThemeProvider value={DarkTheme}>
           <Theme name="dark_blue">
-            <RootLayoutNav />
+            <ToastProvider>
+              <RootLayoutNav />
+              <AppToast />
+              <ToastViewport top={0} right={0} />
+            </ToastProvider>
           </Theme>
         </ThemeProvider>
       </TamaguiProvider>
