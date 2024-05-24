@@ -1,9 +1,9 @@
 import { useAuth } from '@/components/hooks/useAuth';
+import { FontAwesome } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, H3, Input, View, YStack } from 'tamagui';
+import { Button, H3, Input, Text, View, YStack } from 'tamagui';
 
 type Props = {};
 
@@ -16,6 +16,13 @@ const SignupPage = (props: Props) => {
   const handleSignUp = async () => {
     try {
       signup(email, username, password);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
     } catch (error) {
       console.error(error);
     }
@@ -52,6 +59,10 @@ const SignupPage = (props: Props) => {
             Submit
           </Button>
           <H3>or</H3>
+          <Button backgroundColor="white" onPress={() => handleGoogleSignUp}>
+            <FontAwesome name="google" color="black" />
+            <Text color="black">Continue with Google</Text>
+          </Button>
           <Link href="/login" style={{ color: 'gray' }}>
             Login with existing account
           </Link>
