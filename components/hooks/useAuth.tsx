@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         password
       );
 
-      await updateProfile(new_user.user, { displayName: username });
+      await updateProfile(new_user.user, {
+        displayName: username,
+      });
 
       setUser(new_user.user);
       router.replace('/(protected)');

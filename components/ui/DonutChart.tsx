@@ -11,7 +11,7 @@ function DonutChart() {
   const { completedTasks, todaysTasks } = useTasks();
   const progress = useMemo(
     () =>
-      todaysTasks.length > 0 ? completedTasks.length / todaysTasks.length : 1,
+      todaysTasks.length > 0 ? completedTasks.length / todaysTasks.length : 0,
     [completedTasks, todaysTasks]
   );
 
