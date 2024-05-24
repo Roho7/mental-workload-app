@@ -1,3 +1,4 @@
+import { useAuth } from '@/components/hooks/useAuth';
 import DateTimePicker from '@/components/ui/DateTimePicker';
 import Dropdown from '@/components/ui/Dropdown';
 import MwlBadge, { MwlMap } from '@/components/ui/MwlBadge';
@@ -21,6 +22,7 @@ import {
 } from 'tamagui';
 
 const AddTask = ({}) => {
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState(0);
@@ -28,6 +30,9 @@ const AddTask = ({}) => {
   const [date, setDate] = useState<Date | null>(null);
 
   const handleSubmit = async () => {
+    if (!user) {
+      return;
+    }
     const insertData = {
       title: title,
       description: description,
@@ -35,13 +40,13 @@ const AddTask = ({}) => {
       mwl: mwl,
       due_date: date,
       task_id: uuid.v4().toString(),
+      user_id: user?.uid,
     };
     await setDoc(doc(db, 'tbl_tasks', insertData.task_id), insertData);
 
     reset();
     router.back();
   };
-
   const reset = () => {
     setTitle('');
     setDescription('');

@@ -1,5 +1,12 @@
 import { db } from '@/utils/firebase';
-import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import {
   createContext,
   useContext,
@@ -9,6 +16,7 @@ import {
   useTransition,
 } from 'react';
 import { TaskType } from '../ui/TaskCard';
+import { useAuth } from './useAuth';
 
 type TaskContextType = {
   tasks: TaskType[];
@@ -18,11 +26,13 @@ type TaskContextType = {
   addTask: (task: TaskType) => void;
   removeTask: (id: string) => void;
   updateTask: (id: string, task: TaskType) => void;
+  daysWithTasks: { date: string; tasks: number }[];
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
 
@@ -30,11 +40,13 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //                       EFFECTS                   //
   //   ============================================= //
 
-  //   GET CHATS
+  //   GET TASKS
   useEffect(() => {
     const taskRef = collection(db, 'tbl_tasks');
 
-    const subscriber = onSnapshot(taskRef, {
+    const userTasksRef = query(taskRef, where('user_id', '==', user?.uid));
+
+    const subscriber = onSnapshot(userTasksRef, {
       next: (snapshot) => {
         const tasks = snapshot.docs.map((doc) => ({
           ...(doc.data() as TaskType),
@@ -77,13 +89,15 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //   ============================================= //
 
   const todaysTasks = useMemo(() => {
+    if (!tasks) return [];
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
     return tasks
       .filter((task) => {
-        const dueDate = new Date(task.due_date.toDate());
+        if (!task.due_date) return false;
+        const dueDate = new Date(task.due_date.toDate() || '');
         return dueDate >= startOfDay && dueDate <= endOfDay;
       })
       .sort((a, b) => (a.status !== 'done' ? -1 : 1));
@@ -92,6 +106,29 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const completedTasks = useMemo(() => {
     return todaysTasks.filter((task) => task.status === 'done');
   }, [tasks, todaysTasks]);
+
+  const daysWithTasks = useMemo(() => {
+    const dateCount: Record<string, number> = {};
+    const days = tasks.map((task) => {
+      if (!task.due_date) return '';
+      const dueDate = new Date(task.due_date.toDate() || '');
+      const formattedDate = dueDate.toLocaleDateString('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+      if (!dateCount[formattedDate]) {
+        dateCount[formattedDate] = 0;
+      }
+      dateCount[formattedDate] += 1;
+    });
+    return Object.keys(dateCount).map((date) => ({
+      date,
+      tasks: dateCount[date],
+    }));
+  }, [tasks]);
+
+  const upcomingTasks = useMemo(() => {}, [tasks]);
 
   const values = useMemo(
     () => ({
@@ -102,6 +139,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       addTask,
       removeTask,
       updateTask,
+      daysWithTasks,
     }),
     [tasks]
   );
