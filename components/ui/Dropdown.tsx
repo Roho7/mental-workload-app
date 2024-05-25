@@ -1,14 +1,5 @@
-import React, { useState } from 'react';
-import {
-  Popover,
-  Adapt,
-  YStack,
-  XStack,
-  Label,
-  Input,
-  PopoverProps,
-  Button,
-} from 'tamagui';
+import React from 'react';
+import { Adapt, Popover, PopoverProps, YStack } from 'tamagui';
 
 type DropdownProps = {
   children: React.ReactNode;
@@ -24,9 +15,7 @@ const Dropdown = ({
 }: PopoverProps & DropdownProps) => {
   return (
     <Popover size="$5" allowFlip {...props}>
-      <Popover.Trigger asChild>
-        <Button> {children}</Button>
-      </Popover.Trigger>
+      <Popover.Trigger asChild>{children}</Popover.Trigger>
 
       <Adapt when="sm" platform="touch">
         <Popover.Sheet modal dismissOnSnapToBottom>
