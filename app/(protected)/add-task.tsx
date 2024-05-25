@@ -9,17 +9,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import uuid from 'react-native-uuid';
-import {
-  Button,
-  H2,
-  H3,
-  Input,
-  Text,
-  TextArea,
-  View,
-  XStack,
-  YStack,
-} from 'tamagui';
+import { Button, H2, H3, Input, Text, TextArea, XStack, YStack } from 'tamagui';
 
 const AddTask = ({}) => {
   const { user } = useAuth();
@@ -94,10 +84,10 @@ const AddTask = ({}) => {
             );
           })}
         >
-          <View className="flex flex-row items-center" style={{ columnGap: 8 }}>
+          <Button>
             <PriorityBadge priority={priority} />
             <Text>{PriorityMap[priority].text}</Text>
-          </View>
+          </Button>
         </Dropdown>
         {/* ============================================ */}
         {/*                   MWL DROPDOWN               */}
@@ -120,10 +110,10 @@ const AddTask = ({}) => {
             );
           })}
         >
-          <View className="flex flex-row items-center" style={{ columnGap: 8 }}>
+          <Button>
             <MwlBadge load={mwl} />
             <Text>{MwlMap[mwl].text}</Text>
-          </View>
+          </Button>
         </Dropdown>
         {/* ============================================ */}
         {/*                   DATE PICKER                */}

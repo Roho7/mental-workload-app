@@ -3,7 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, H3, Input, Text, View, YStack } from 'tamagui';
+import { Button, H3, H4, Image, Input, Text, View, YStack } from 'tamagui';
 
 type Props = {};
 
@@ -31,7 +31,12 @@ const SignupPage = (props: Props) => {
   return (
     <SafeAreaView style={{ height: '100%' }}>
       <YStack alignItems="center" marginBlock="auto" rowGap="$4" width="full">
-        <H3>Create a new Account</H3>
+        <Image
+          width={236}
+          height={93.3}
+          source={require('../../assets/images/logo-long.png')}
+        />
+        <H4 size="$2">Create a new Account</H4>
         <View rowGap="$2" alignItems="center">
           <Input
             placeholder="Username"
