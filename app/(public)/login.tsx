@@ -4,7 +4,7 @@ import { Link } from 'expo-router';
 import React, { useState } from 'react';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, H3, Image, Input, Text, View, YStack } from 'tamagui';
+import { Button, H4, Image, Input, Text, View, YStack } from 'tamagui';
 
 type Props = {};
 
@@ -27,7 +27,7 @@ const LoginPage = (props: Props) => {
         height={93.3}
         source={require('../../assets/images/logo-long.png')}
       />
-      <H3>Login</H3>
+      <H4 size="$2">Login</H4>
       <View rowGap="$2" alignItems="center">
         <Input
           placeholder="Email"
