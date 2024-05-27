@@ -18,8 +18,8 @@ import {
   XStack,
   YStack,
 } from 'tamagui';
-import DonutCard from './(components)/DonutCard';
-import WeeklyCard from './(components)/WeeklyCard';
+import DonutCard from '../../components/ui/homepage/DonutCard';
+import WeeklyCard from '../../components/ui/homepage/WeeklyCard';
 
 const cardArray = [<DonutCard />, <WeeklyCard />];
 
