@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 import { EventProvider } from 'react-native-outside-press';
 import { TamaguiProvider, Theme } from 'tamagui';
 import { AuthProvider } from '../components/hooks/useAuth';
-
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
