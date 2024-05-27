@@ -2,10 +2,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/components/hooks/useAuth';
 import { useTasks } from '@/components/hooks/useTasks';
-import DonutChart from '@/components/ui/DonutChart';
 import Dropdown from '@/components/ui/Dropdown';
 import TaskCard from '@/components/ui/TaskCard';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useWindowDimensions } from 'react-native';
+import Carousel from 'react-native-reanimated-carousel';
 import {
   Avatar,
   Button,
@@ -17,25 +18,17 @@ import {
   XStack,
   YStack,
 } from 'tamagui';
+import DonutCard from './(components)/DonutCard';
+import WeeklyCard from './(components)/WeeklyCard';
 
-type WeekMwlType = { day: string; mwl: number };
-
-const weekMap: Record<number, WeekMwlType> = {
-  0: { day: 'Sun', mwl: 2 },
-  1: { day: 'Mon', mwl: 3 },
-  2: { day: 'Tue', mwl: 6 },
-  3: { day: 'Wed', mwl: 3 },
-  4: { day: 'Thu', mwl: 1 },
-  5: { day: 'Fri', mwl: 3 },
-  6: { day: 'Sat', mwl: 4 },
-};
+const cardArray = [<DonutCard />, <WeeklyCard />];
 
 export default function TabOneScreen() {
+  const width = useWindowDimensions().width;
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+
   const { logout, user } = useAuth();
   const { todaysTasks } = useTasks();
-
-  const [today, setToday] = useState(weekMap[new Date().getDay()].day);
-
   return (
     <ScrollView>
       <SafeAreaView>
@@ -64,65 +57,53 @@ export default function TabOneScreen() {
             </XStack>
             <H4 color="$accentBackground">You have 5 tasks remaining today</H4>
           </View>
-          <ScrollView horizontal>
-            <XStack gap="$4">
-              <View
-                borderColor="$blue4"
-                borderWidth="$1"
-                backgroundColor="$background"
-                borderRadius="$8"
-                padding="$4"
-                style={{ width: '100vw' }}
-              >
-                <View className="flex flex-col items-center justify-center">
-                  <Text className="text-green-500">Smooth Sailing</Text>
-                  <DonutChart />
-                </View>
-              </View>
-              <View
-                borderColor="$blue4"
-                borderWidth="$1"
-                backgroundColor="$background"
-                borderRadius="$8"
-                padding="$4"
-                style={{ width: '100vw' }}
-              >
-                <View className="flex flex-col items-center justify-center">
-                  <XStack gap="$4">
-                    {[0, 1, 2, 3, 4, 5, 6].map((item: number) => {
-                      return (
-                        <YStack key={item} gap="$2" alignItems="center">
-                          <View
-                            width="$1"
-                            height="$14"
-                            borderRadius="$4"
-                            backgroundColor="$blue5"
-                            padding="$1"
-                          >
-                            <View
-                              marginTop="auto"
-                              style={{ height: `${weekMap[item].mwl * 10}%` }}
-                              borderRadius="$4"
-                              backgroundColor="$blue10"
-                            ></View>
-                          </View>
-                          <Text
-                            color={
-                              weekMap[item].day === today
-                                ? '$blue11'
-                                : '$gray10'
-                            }
-                          >
-                            {weekMap[item].day}
-                          </Text>
-                        </YStack>
-                      );
-                    })}
-                  </XStack>
-                </View>
-              </View>
+          <View flex={1}>
+            <Carousel
+              loop={false}
+              width={width}
+              height={width / 1.5}
+              data={cardArray}
+              style={{ width: '100%' }}
+              pagingEnabled={true}
+              onSnapToItem={(index) => setActiveCardIndex(index)}
+              renderItem={({ index, item }) => {
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <View style={{ width: '90%' }}>{item}</View>
+                  </View>
+                );
+              }}
+            />
+            <XStack
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+              }}
+              gap="$2"
+              paddingTop="$4"
+            >
+              {cardArray.map((card, index) => {
+                return (
+                  <View
+                    key={index}
+                    borderRadius={10}
+                    backgroundColor={
+                      index === activeCardIndex ? '$blue10' : '$gray10'
+                    }
+                    height={4}
+                    width={4}
+                  ></View>
+                );
+              })}
             </XStack>
-          </ScrollView>
+          </View>
           <Text className="text-2xl">Today's Tasks</Text>
           <ScrollView maxHeight="$20">
             {todaysTasks && todaysTasks?.length > 0 ? (
