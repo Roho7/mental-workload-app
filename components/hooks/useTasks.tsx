@@ -27,6 +27,7 @@ type TaskContextType = {
   removeTask: (id: string) => void;
   updateTask: (id: string, task: TaskType) => void;
   daysWithTasks: { date: string; tasks: number }[];
+  getTasksByDate: (date: Date) => TaskType[];
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
@@ -84,10 +85,20 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
   };
-  //   ============================================= //
-  //                        MEMOS                    //
-  //   ============================================= //
 
+  // ------------------------------------------------------------------------------ //
+  //                                 HELPER FUNCTIONS                               //
+  // ------------------------------------------------------------------------------ //
+  const getTasksByDate = (date: Date) => {
+    return tasks.filter((task) => {
+      if (!task.due_date) return false;
+      const dueDate = new Date(task.due_date.toDate() || '');
+      return dueDate.toDateString() === date.toDateString();
+    });
+  };
+  // ------------------------------------------------------------------------------ //
+  //                                     MEMOS                                      //
+  // ------------------------------------------------------------------------------ //
   const todaysTasks = useMemo(() => {
     if (!tasks) return [];
     const today = new Date();
@@ -140,6 +151,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       removeTask,
       updateTask,
       daysWithTasks,
+      getTasksByDate,
     }),
     [tasks]
   );
