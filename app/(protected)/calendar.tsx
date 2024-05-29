@@ -1,14 +1,15 @@
 import { useTasks } from '@/components/hooks/useTasks';
-import { testIDs } from '@/constants/testID';
-import React, { Fragment, useState } from 'react';
-import { Calendar, CalendarUtils } from 'react-native-calendars';
+import TaskCard, { TaskType } from '@/components/ui/TaskCard';
+import React, { useState } from 'react';
+import { Calendar, CalendarUtils, DateData } from 'react-native-calendars';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { H2, View } from 'tamagui';
+import { H2, H3, Text, View, YStack } from 'tamagui';
 
 const CalendarScreen = () => {
-  const { daysWithTasks } = useTasks();
-  const [selected, setSelected] = useState<string>('');
+  const { daysWithTasks, getTasksByDate } = useTasks();
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [currentMonth, setCurrentMonth] = useState();
+  const [selectedDateTasks, setSelectedDateTasks] = useState<TaskType[]>([]);
 
   const getDate = (count: number) => {
     const date = new Date();
@@ -18,9 +19,9 @@ const CalendarScreen = () => {
 
   const getMarkedDates = () => {
     const markedDates = {
-      [selected]: {
+      [selectedDate]: {
         selected: true,
-        selectedColor: 'orange',
+        selectedColor: 'blue',
       },
     };
 
@@ -33,8 +34,15 @@ const CalendarScreen = () => {
 
     return markedDates;
   };
-  const renderCalendarWithCustomMarkingType = () => {
-    return (
+
+  const handleDayPress = (day: DateData) => {
+    setSelectedDate(day.dateString);
+    const tasks = getTasksByDate(new Date(day.dateString));
+    setSelectedDateTasks(tasks);
+  };
+
+  return (
+    <SafeAreaView>
       <View theme="dark" paddingHorizontal="$2">
         <H2 marginBottom="$4">Tasks Calendar</H2>
         <Calendar
@@ -45,9 +53,9 @@ const CalendarScreen = () => {
             calendarBackground: '#00000',
           }}
           markingType={'custom'}
-          onDayPress={(day) => setSelected(day?.dateString)}
+          onDayPress={handleDayPress}
           markedDates={{
-            [selected]: {
+            [selectedDate]: {
               selected: true,
               disableTouchEvent: true,
             },
@@ -55,16 +63,18 @@ const CalendarScreen = () => {
           }}
         />
       </View>
-    );
-  };
-
-  const renderExamples = () => {
-    return <Fragment>{renderCalendarWithCustomMarkingType()}</Fragment>;
-  };
-
-  return (
-    <SafeAreaView testID={testIDs.calendars.CONTAINER}>
-      {renderExamples()}
+      {selectedDateTasks && (
+        <YStack padding="$4">
+          <H3>Tasks on {selectedDate}</H3>
+          {selectedDateTasks.length > 0 ? (
+            selectedDateTasks.map((task, index) => (
+              <TaskCard task={task} key={index} />
+            ))
+          ) : (
+            <Text>No tasks</Text>
+          )}
+        </YStack>
+      )}
     </SafeAreaView>
   );
 };
