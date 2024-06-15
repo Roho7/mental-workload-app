@@ -55,7 +55,9 @@ export default function TabOneScreen() {
                 </Avatar>
               </Dropdown>
             </XStack>
-            <H4 color="$accentBackground">You have 5 tasks remaining today</H4>
+            <H4 color="$accentBackground">
+              You have {todaysTasks.length} tasks remaining today
+            </H4>
           </View>
           <View flex={1}>
             <Carousel
