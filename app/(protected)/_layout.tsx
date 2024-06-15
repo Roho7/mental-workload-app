@@ -27,12 +27,14 @@ function TabBarIcon(
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(true);
   const colorScheme = useColorScheme();
+
   getAuth().onAuthStateChanged((user) => {
     setIsLoading(false);
     if (!user) {
       router.replace('/(public)/login');
     }
   });
+
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
