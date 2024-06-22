@@ -1,10 +1,10 @@
 import { TaskProvider } from '@/components/hooks/useTasks';
 import Colors from '@/constants/Colors';
+import { auth } from '@/utils/firebase';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, router, Tabs } from 'expo-router';
-import { getAuth } from 'firebase/auth';
-import React, { useState } from 'react';
+import { Link, router, Tabs, useRootNavigationState } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
 import { Text } from 'tamagui';
 
@@ -26,14 +26,28 @@ function TabBarIcon(
 
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(true);
+  const rootNavigationState = useRootNavigationState();
   const colorScheme = useColorScheme();
 
-  getAuth().onAuthStateChanged((user) => {
-    setIsLoading(false);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!rootNavigationState?.key) return null;
+      setIsLoading(false);
+      if (!user) {
+        router.replace('/(public)/login');
+      }
+    });
+
+    // Check auth status on mount
+    const user = auth.currentUser;
     if (!user) {
       router.replace('/(public)/login');
+    } else {
+      setIsLoading(false);
     }
-  });
+
+    return () => unsubscribe();
+  }, []);
 
   if (isLoading) {
     return <Text>Loading...</Text>;
