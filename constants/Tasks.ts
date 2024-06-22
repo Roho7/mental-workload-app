@@ -8,7 +8,7 @@
 //       'Add a new login page for user authentication using JWT tokens.',
 //     status: 'done',
 //     difficulty: 4,
-//     due_date: dayjs('2024-05-10'),
+//     dueDate: dayjs('2024-05-10'),
 //     priority: 1,
 //   },
 //   {
@@ -17,7 +17,7 @@
 //     description: 'Design the monthly newsletter with updated company news.',
 //     status: 'pending',
 //     difficulty: 3,
-//     due_date: new Date('2024-05-15'),
+//     dueDate: new Date('2024-05-15'),
 //     priority: 2,
 //   },
 //   {
@@ -27,7 +27,7 @@
 //       'Prepare all documents for the upcoming annual employee reviews.',
 //     status: 'pending',
 //     difficulty: 5,
-//     due_date: new Date('2024-06-01'),
+//     dueDate: new Date('2024-06-01'),
 //     priority: 3,
 //   },
 //   {
@@ -36,7 +36,7 @@
 //     description: 'Optimize the current database schema to enhance performance.',
 //     status: 'overdue',
 //     difficulty: 2,
-//     due_date: new Date('2024-04-10'),
+//     dueDate: new Date('2024-04-10'),
 //     priority: 4,
 //   },
 //   {
@@ -46,7 +46,7 @@
 //       'Update the FAQ section on the website with the latest questions and answers.',
 //     status: 'done',
 //     difficulty: 2,
-//     due_date: new Date('2024-05-01'),
+//     dueDate: new Date('2024-05-01'),
 //     priority: 0,
 //   },
 //   {
@@ -55,7 +55,7 @@
 //     description: 'Compile and review the budget report for the second quarter.',
 //     status: 'pending',
 //     difficulty: 1,
-//     due_date: new Date('2024-05-20'),
+//     dueDate: new Date('2024-05-20'),
 //     priority: 4,
 //   },
 //   {
@@ -64,7 +64,7 @@
 //     description: 'Conduct a full audit of the warehouse inventory.',
 //     status: 'overdue',
 //     difficulty: 1,
-//     due_date: new Date('2024-04-15'),
+//     dueDate: new Date('2024-04-15'),
 //     priority: 0,
 //   },
 //   {
@@ -74,7 +74,7 @@
 //       'Develop APIs to support new services to be launched next quarter.',
 //     status: 'pending',
 //     mentalWorkload: 3,
-//     due_date: new Date('2024-06-10'),
+//     dueDate: new Date('2024-06-10'),
 //     priority: 4,
 //   },
 //   {
@@ -83,7 +83,7 @@
 //     description: 'Develop a new outreach strategy to engage potential clients.',
 //     status: 'done',
 //     mentalWorkload: 3,
-//     due_date: new Date('2024-05-25'),
+//     dueDate: new Date('2024-05-25'),
 //     priority: 4,
 //   },
 //   {
@@ -92,7 +92,7 @@
 //     description: 'Organize a recruitment drive for new technical staff.',
 //     status: 'overdue',
 //     mentalWorkload: 4,
-//     due_date: new Date('2024-04-05'),
+//     dueDate: new Date('2024-04-05'),
 //     priority: 2,
 //   },
 // ];

@@ -5,7 +5,7 @@ import MwlBadge, { MwlMap } from '@/components/ui/MwlBadge';
 import PriorityBadge, { PriorityMap } from '@/components/ui/PriorityBadge';
 import { db } from '@/utils/firebase';
 import { router } from 'expo-router';
-import { doc, setDoc } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import uuid from 'react-native-uuid';
@@ -28,11 +28,16 @@ const AddTask = ({}) => {
       description: description,
       priority: priority,
       mwl: mwl,
-      due_date: date,
-      task_id: uuid.v4().toString(),
-      user_id: user?.uid,
+      dueDate: date,
+      taskId: uuid.v4().toString(),
     };
-    await setDoc(doc(db, 'tbl_tasks', insertData.task_id), insertData);
+
+    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
+
+    await addDoc(taskRef, {
+      ...insertData,
+      userId: user.uid,
+    });
 
     reset();
     router.back();
@@ -46,22 +51,22 @@ const AddTask = ({}) => {
   };
   return (
     <SafeAreaView>
-      <YStack gap="$4" paddingInline="$2">
-        <XStack alignItems="center" gap="$4">
+      <YStack gap='$4' paddingInline='$2'>
+        <XStack alignItems='center' gap='$4'>
           <H2>Add Task</H2>
-          <H3 color="$gray5">#TaskId</H3>
+          <H3 color='$gray5'>#TaskId</H3>
         </XStack>
         <Input
-          placeholder="New Task"
-          fontSize="$8"
+          placeholder='New Task'
+          fontSize='$8'
           onChange={(e) => setTitle(e.nativeEvent.text)}
           value={title}
         />
         <TextArea
-          placeholder="Description"
+          placeholder='Description'
           numberOfLines={4}
           multiline={true}
-          fontSize="$4"
+          fontSize='$4'
           style={{ height: 100 }}
           onChange={(e) => setDescription(e.nativeEvent.text)}
           value={description}
@@ -71,12 +76,12 @@ const AddTask = ({}) => {
           elements={[0, 1, 2, 3, 4].map((item) => {
             return (
               <Button
-                size="$5"
+                size='$5'
                 onPress={() => {
                   setPriority(item);
                 }}
               >
-                <XStack gap="$3">
+                <XStack gap='$3'>
                   <PriorityBadge priority={item} />
                   <Text>{PriorityMap[item].text}</Text>
                 </XStack>
@@ -97,12 +102,12 @@ const AddTask = ({}) => {
           elements={[1, 2, 3, 4, 5].map((item) => {
             return (
               <Button
-                size="$5"
+                size='$5'
                 onPress={() => {
                   setMwl(item);
                 }}
               >
-                <XStack gap="$3">
+                <XStack gap='$3'>
                   <MwlBadge load={item} />
                   <Text>{MwlMap[item].text}</Text>
                 </XStack>
@@ -120,9 +125,9 @@ const AddTask = ({}) => {
         {/* ============================================ */}
         <DateTimePicker date={date} setDate={setDate} />
         <Button
-          theme="green"
-          borderWidth="$0.25"
-          borderColor="green"
+          theme='green'
+          borderWidth='$0.25'
+          borderColor='green'
           onPress={() => handleSubmit()}
         >
           Save

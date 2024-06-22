@@ -2,12 +2,12 @@ import tamaguiConfig from '@/tamagui.config';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { EventProvider } from 'react-native-outside-press';
 import { TamaguiProvider, Theme } from 'tamagui';
-import { AuthProvider } from '../components/hooks/useAuth';
+import { AuthProvider, useAuth } from '../components/hooks/useAuth';
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
@@ -39,7 +39,7 @@ export default function RootLayout() {
     <AuthProvider>
       <TamaguiProvider config={tamaguiConfig}>
         <ThemeProvider value={DarkTheme}>
-          <Theme name="dark_blue">
+          <Theme name='dark_blue'>
             <RootLayoutNav />
           </Theme>
         </ThemeProvider>
@@ -49,9 +49,16 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const { user } = useAuth();
   return (
     <EventProvider>
-      <Slot />
+      <Stack screenOptions={{ headerShown: false }}>
+        {user?.email ? (
+          <Stack.Screen name='(app)' options={{ headerShown: false }} />
+        ) : (
+          <Stack.Screen name='(public)' options={{ headerShown: false }} />
+        )}
+      </Stack>
     </EventProvider>
   );
 }
