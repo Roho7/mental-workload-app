@@ -1,11 +1,11 @@
 import { db } from '@/utils/firebase';
+import { router } from 'expo-router';
 import {
+  addDoc,
   collection,
   doc,
   onSnapshot,
-  query,
   updateDoc,
-  where,
 } from 'firebase/firestore';
 import moment from 'moment';
 import {
@@ -20,6 +20,10 @@ import {
 import { TaskType } from '../ui/TaskCard';
 import { useAuth } from './useAuth';
 
+type MWLObjectType = {
+  [key: string]: { mwl: number; feedback: string };
+};
+
 type TaskContextType = {
   tasks: TaskType[];
   setTasks: (tasks: TaskType[]) => void;
@@ -31,6 +35,8 @@ type TaskContextType = {
   daysWithTasks: { date: string; tasks: number }[];
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
+  generateMentalWorkload: (date: string | undefined) => void;
+  mwlObject: MWLObjectType;
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
@@ -39,6 +45,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [mwlObject, setMwlObject] = useState<MWLObjectType>({});
 
   //   ============================================= //
   //                       EFFECTS                   //
@@ -46,11 +53,14 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   //   GET TASKS
   useEffect(() => {
-    const taskRef = collection(db, 'tbl_tasks');
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
+    const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
 
-    const userTasksRef = query(taskRef, where('user_id', '==', user?.uid));
-
-    const subscriber = onSnapshot(userTasksRef, {
+    const taskSubscriber = onSnapshot(taskRef, {
       next: (snapshot) => {
         const tasks = snapshot.docs.map((doc) => ({
           ...(doc.data() as TaskType),
@@ -58,7 +68,19 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         setTasks(tasks as TaskType[]);
       },
     });
-    return () => subscriber();
+    const mwlSubscriber = onSnapshot(mwlRef, {
+      next: (snapshot) => {
+        const mwl = snapshot.docs.reduce((acc, doc) => {
+          return { ...acc, [doc.id]: doc.data() };
+        }, {});
+        setMwlObject({ ...mwl } as MWLObjectType);
+      },
+    });
+    alert('Tasks fetched');
+    return () => {
+      taskSubscriber();
+      mwlSubscriber();
+    };
   }, []);
 
   const addTask = (task: TaskType) => {
@@ -68,21 +90,22 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const removeTask = (id: string) => {};
 
   const updateTask = (id: string, newTask: TaskType) => {
+    if (!user) throw new Error('User is not authenticated');
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.task_id === id ? { ...task, ...newTask } : task
+        task.taskId === id ? { ...task, ...newTask } : task
       )
     );
 
     // Perform the database update within the transition
     startTransition(() => {
-      const taskRef = doc(db, 'tbl_tasks', id);
+      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, id);
       updateDoc(taskRef, newTask).catch((error) => {
         console.error('Error updating document: ', error);
         // Optionally, handle error and revert state if necessary
         setTasks((prevTasks) =>
           prevTasks.map((task) =>
-            task.task_id === id ? { ...task, ...newTask } : task
+            task.taskId === id ? { ...task, ...newTask } : task
           )
         );
       });
@@ -90,13 +113,35 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ------------------------------------------------------------------------------ //
+  //                                 MENTAL WORKLOAD                                //
+  // ------------------------------------------------------------------------------ //
+
+  const generateMentalWorkload = async (date: string | undefined) => {
+    if (!date) return;
+    const tasks: TaskType[] = getTasksByDate(new Date(date));
+
+    const formatedTasks = tasks.map((task) => {
+      return {
+        ...task,
+        dueDate: moment(task.dueDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+      };
+    });
+
+    const insertData = { tasks: JSON.stringify(formatedTasks) };
+    try {
+      await addDoc(collection(db, 'tbl_ai_response'), insertData);
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
+  };
+  // ------------------------------------------------------------------------------ //
   //                                 HELPER FUNCTIONS                               //
   // ------------------------------------------------------------------------------ //
   const getTasksByDate = useCallback(
     (date: Date) => {
       return tasks.filter((task) => {
-        if (!task.due_date) return false;
-        const dueDate = new Date(task.due_date.toDate() || '');
+        if (!task.dueDate) return false;
+        const dueDate = new Date(task.dueDate.toDate() || '');
         return dueDate.toDateString() === date.toDateString();
       });
     },
@@ -104,10 +149,9 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const getTasksByRange = (start: Date, end: Date) => {
-    console.log(moment(start), moment(end));
     return tasks.filter((task) => {
-      if (!task.due_date) return false;
-      const dueDate = moment(task.due_date.toDate());
+      if (!task.dueDate) return false;
+      const dueDate = moment(task.dueDate.toDate());
       return dueDate.isBetween(moment(start), moment(end), 'days', '[]');
     });
   };
@@ -122,8 +166,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
     return tasks
       .filter((task) => {
-        if (!task.due_date) return false;
-        const dueDate = new Date(task.due_date.toDate() || '');
+        if (!task.dueDate) return false;
+        const dueDate = new Date(task.dueDate.toDate() || '');
         return dueDate >= startOfDay && dueDate <= endOfDay;
       })
       .sort((a, b) => (a.status !== 'done' ? -1 : 1));
@@ -136,8 +180,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const daysWithTasks = useMemo(() => {
     const dateCount: Record<string, number> = {};
     const days = tasks.map((task) => {
-      if (!task.due_date) return '';
-      const dueDate = new Date(task.due_date.toDate() || '');
+      if (!task.dueDate) return '';
+      const dueDate = new Date(task.dueDate.toDate() || '');
       const formattedDate = dueDate.toLocaleDateString('en-CA', {
         year: 'numeric',
         month: '2-digit',
@@ -162,12 +206,14 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       setTasks,
       todaysTasks,
       completedTasks,
+      generateMentalWorkload,
       addTask,
       removeTask,
       updateTask,
       daysWithTasks,
       getTasksByDate,
       getTasksByRange,
+      mwlObject,
     }),
     [tasks]
   );

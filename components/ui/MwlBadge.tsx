@@ -55,19 +55,21 @@ type Props = {
 
 const MwlBadge = ({ load }: Props) => {
   return (
-    <View
-      className={clsx(
-        'flex max-w-min flex-row items-center justify-center rounded-md p-0.5'
-      )}
-      style={{ columnGap: 2 }}
-    >
-      <FontAwesome5
-        name={MwlMap[load]?.icon || 'brain'}
-        color={MwlMap[load]?.iconColor || 'white'}
-        size={12}
-      />
-      <Text color={MwlMap[load].color}>{load}</Text>
-    </View>
+    load && (
+      <View
+        className={clsx(
+          'flex max-w-min flex-row items-center justify-center rounded-md p-0.5'
+        )}
+        style={{ columnGap: 2 }}
+      >
+        <FontAwesome5
+          name={MwlMap[load]?.icon || 'brain'}
+          color={MwlMap[load]?.iconColor || 'white'}
+          size={12}
+        />
+        <Text color={MwlMap[load].color}>{load}</Text>
+      </View>
+    )
   );
 };
 
