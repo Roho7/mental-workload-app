@@ -14,7 +14,7 @@ export type TaskType = {
   title: string;
   description: string;
   status?: 'done' | 'pending' | 'overdue';
-  mwl: number;
+  difficulty: number;
   due_date: Timestamp;
   priority: 1 | 2 | 3 | 4 | 0;
   task_id: string;
@@ -70,7 +70,7 @@ const TaskCard = ({ task }: { task: TaskType }) => {
               flexDirection="row"
               alignItems="center"
             >
-              <MwlBadge load={task.mwl} />
+              <MwlBadge load={task.difficulty} />
               <PriorityBadge priority={task.priority} />
             </View>
           </XStack>
