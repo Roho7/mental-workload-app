@@ -7,8 +7,10 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import moment from 'moment';
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -28,6 +30,7 @@ type TaskContextType = {
   updateTask: (id: string, task: TaskType) => void;
   daysWithTasks: { date: string; tasks: number }[];
   getTasksByDate: (date: Date) => TaskType[];
+  getTasksByRange: (start: Date, end: Date) => TaskType[];
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
@@ -89,11 +92,23 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   // ------------------------------------------------------------------------------ //
   //                                 HELPER FUNCTIONS                               //
   // ------------------------------------------------------------------------------ //
-  const getTasksByDate = (date: Date) => {
+  const getTasksByDate = useCallback(
+    (date: Date) => {
+      return tasks.filter((task) => {
+        if (!task.due_date) return false;
+        const dueDate = new Date(task.due_date.toDate() || '');
+        return dueDate.toDateString() === date.toDateString();
+      });
+    },
+    [tasks]
+  );
+
+  const getTasksByRange = (start: Date, end: Date) => {
+    console.log(moment(start), moment(end));
     return tasks.filter((task) => {
       if (!task.due_date) return false;
-      const dueDate = new Date(task.due_date.toDate() || '');
-      return dueDate.toDateString() === date.toDateString();
+      const dueDate = moment(task.due_date.toDate());
+      return dueDate.isBetween(moment(start), moment(end), 'days', '[]');
     });
   };
   // ------------------------------------------------------------------------------ //
@@ -152,6 +167,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       updateTask,
       daysWithTasks,
       getTasksByDate,
+      getTasksByRange,
     }),
     [tasks]
   );
