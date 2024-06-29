@@ -26,7 +26,9 @@
         }
       }
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "serotonin.app"
@@ -48,9 +50,12 @@
       [
         "expo-font",
         {
-          "font": ["./assets/fonts/Inter.ttf"]
+          "font": [
+            "./assets/fonts/Inter.ttf"
+          ]
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

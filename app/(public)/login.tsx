@@ -1,6 +1,6 @@
 import { useAuth } from '@/components/hooks/useAuth';
 import { useToastController } from '@tamagui/toast';
-import { Link } from 'expo-router';
+import { Link, Redirect } from 'expo-router';
 import React, { useState } from 'react';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +17,9 @@ const LoginPage = (props: Props) => {
   const handleSignIn = () => {
     login(email, password);
   };
+  if (user) {
+    return <Redirect href='/(protected)' />;
+  }
   return (
     <SafeAreaView
       className='flex h-full flex-col items-center justify-center p-4'

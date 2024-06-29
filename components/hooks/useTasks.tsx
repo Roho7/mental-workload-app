@@ -1,5 +1,4 @@
 import { db } from '@/utils/firebase';
-import { router } from 'expo-router';
 import {
   addDoc,
   collection,
@@ -54,7 +53,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //   GET TASKS
   useEffect(() => {
     if (!user) {
-      router.replace('/login');
       return;
     }
     const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
@@ -81,7 +79,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       taskSubscriber();
       mwlSubscriber();
     };
-  }, []);
+  }, [user]);
 
   const addTask = (task: TaskType) => {
     setTasks([...tasks, task]);
