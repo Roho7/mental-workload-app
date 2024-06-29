@@ -1,4 +1,5 @@
 import { auth } from '@/utils/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
 import {
@@ -12,6 +13,7 @@ import React, {
   createContext,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -52,8 +54,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (username: string, password: string) => {
     try {
+      AsyncStorage.getItem('user').then((res) => {
+        if (res !== null) setUser(JSON.parse(res));
+        return;
+      });
       const res = await signInWithEmailAndPassword(auth, username, password);
       setUser(res.user);
+      AsyncStorage.setItem('user', JSON.stringify(res.user));
       router.replace('/(protected)');
     } catch (error: any) {
       if (error.code) {
@@ -84,10 +91,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    console.log('logout');
+    AsyncStorage.setItem('user', '');
     signOut(auth);
     setUser(null);
   };
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error('Failed to load user data from AsyncStorage', error);
+      }
+    };
+
+    getUser();
+  }, []);
 
   const authContextValue = useMemo(
     () => ({

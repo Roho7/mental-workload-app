@@ -1,10 +1,10 @@
+import { useAuth } from '@/components/hooks/useAuth';
 import { TaskProvider } from '@/components/hooks/useTasks';
 import Colors from '@/constants/Colors';
-import { auth } from '@/utils/firebase';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, router, Tabs, useRootNavigationState } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { Link, Redirect, Tabs } from 'expo-router';
+import React, { useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
 import { Text } from 'tamagui';
 
@@ -25,32 +25,15 @@ function TabBarIcon(
 }
 
 export default function TabLayout() {
-  const [isLoading, setIsLoading] = useState(true);
-  const rootNavigationState = useRootNavigationState();
+  const [isLoading, setIsLoading] = useState(false);
   const colorScheme = useColorScheme();
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!rootNavigationState?.key) return null;
-      setIsLoading(false);
-      if (!user) {
-        router.replace('/(public)/login');
-      }
-    });
-
-    // Check auth status on mount
-    const user = auth.currentUser;
-    if (!user) {
-      router.replace('/(public)/login');
-    } else {
-      setIsLoading(false);
-    }
-
-    return () => unsubscribe();
-  }, []);
+  const { user } = useAuth();
 
   if (isLoading) {
     return <Text>Loading...</Text>;
+  }
+  if (!user) {
+    return <Redirect href='/login' />;
   }
   return (
     <TaskProvider>
@@ -62,16 +45,16 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name='index'
           options={{
             title: 'Home',
-            tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon name='home' color={color} />,
             headerRight: () => (
-              <Link href="/modal" asChild>
+              <Link href='/modal' asChild>
                 <Pressable>
                   {({ pressed }) => (
                     <FontAwesome
-                      name="info-circle"
+                      name='info-circle'
                       size={25}
                       color={Colors[colorScheme ?? 'light'].text}
                       style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
@@ -83,19 +66,19 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="add-task"
+          name='add-task'
           options={{
             title: 'Add Task',
 
             tabBarIcon: ({ color }) => (
-              <TabBarIcon name="plus-circle" color={color} />
+              <TabBarIcon name='plus-circle' color={color} />
             ),
             headerRight: () => (
-              <Link href="/modal" asChild>
+              <Link href='/modal' asChild>
                 <Pressable>
                   {({ pressed }) => (
                     <FontAwesome
-                      name="info-circle"
+                      name='info-circle'
                       size={25}
                       style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                     />
@@ -106,20 +89,20 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="mental-workload"
+          name='mental-workload'
           options={{
             title: 'Mental Workload',
             tabBarIcon: ({ color }) => (
-              <FontAwesome5 name="brain" size={28} color={color} />
+              <FontAwesome5 name='brain' size={28} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="calendar"
+          name='calendar'
           options={{
             title: 'Calendar',
             tabBarIcon: ({ color }) => (
-              <TabBarIcon name="calendar" color={color} />
+              <TabBarIcon name='calendar' color={color} />
             ),
           }}
         />

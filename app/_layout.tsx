@@ -2,7 +2,7 @@ import tamaguiConfig from '@/tamagui.config';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { EventProvider } from 'react-native-outside-press';
@@ -52,13 +52,7 @@ function RootLayoutNav() {
   const { user } = useAuth();
   return (
     <EventProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        {user?.email ? (
-          <Stack.Screen name='(app)' options={{ headerShown: false }} />
-        ) : (
-          <Stack.Screen name='(public)' options={{ headerShown: false }} />
-        )}
-      </Stack>
+      <Slot />
     </EventProvider>
   );
 }
