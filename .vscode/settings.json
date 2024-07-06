@@ -1,14 +1,5 @@
 {
-  "tailwindCSS.classAttributes": [
-    "class",
-    "className",
-    "\\b[_a-zA-Z+]*ClassName"
-  ],
-  "tailwindCSS.experimental.classRegex": [
-    ["classes \\=([^;]*);", "'([^']*)'"],
-    ["classes \\=([^;]*);", "\"([^\"]*)\""],
-    ["classes \\=([^;]*);", "\\`([^\\`]*)\\`"]
-  ],
+  
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"
   }
