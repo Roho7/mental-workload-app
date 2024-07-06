@@ -29,7 +29,7 @@ const WeeklyCard = () => {
         justifyContent: 'center',
       }}
     >
-      <View className="flex flex-col items-center justify-center">
+      <YStack  alignItems='center' justifyContent='center'>
         <XStack gap="$4">
           {[0, 1, 2, 3, 4, 5, 6].map((item: number) => {
             return (
@@ -57,7 +57,7 @@ const WeeklyCard = () => {
             );
           })}
         </XStack>
-      </View>
+      </YStack>
     </View>
   );
 };
