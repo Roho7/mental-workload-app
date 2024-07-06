@@ -1,8 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { Icon } from '@expo/vector-icons/build/createIconSet';
-import clsx from 'clsx';
 import React from 'react';
-import { View, Text } from 'react-native';
+import { XStack } from 'tamagui';
+
 
 type PriorityType = {
   color: string;
@@ -44,14 +43,15 @@ type Props = {
 
 const PriorityBadge = ({ priority }: Props) => {
   return (
-    <View
-      className={clsx(
-        PriorityMap[priority].color,
-        'flex h-4 w-4 items-center justify-center rounded-md'
-      )}
+    <XStack
+      backgroundColor={PriorityMap[priority].color}
+      justifyContent='center'
+      alignItems='center'
+      height={4}
+      width={4}
     >
       <Feather name={PriorityMap[priority].icon} size={12} color="white" />
-    </View>
+    </XStack>
   );
 };
 

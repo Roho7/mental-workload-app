@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { View } from 'tamagui';
+import { useTasks } from '../hooks/useTasks';
 
 type GraphProps = {
   interval: string;
+  date: moment.Moment | null;
+  range: { start: moment.Moment | null; end: moment.Moment | null };
 };
 
 const chartConfig = {
@@ -29,13 +32,36 @@ const dailyLabels = ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '12AM', '3AM'];
 const monthlyLabels = ['January', 'February', 'March', 'April', 'May', 'June'];
 const weeklyLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const Graph = ({ interval }: GraphProps) => {
+const Graph = ({ interval, date, range }: GraphProps) => {
+  const { mwlObject } = useTasks();
+
+  const weekMWLMap = useMemo(() => {
+    const startOfWeek = date?.clone().startOf('isoWeek');
+    const weekMWLArray = [];
+
+    for (let i = 0; i < 7; i++) {
+      const currentDay = startOfWeek
+        ?.clone()
+        .add(i, 'days')
+        .format('DD-MM-YYYY');
+      console.log(currentDay);
+      if (mwlObject[currentDay || '']) {
+        weekMWLArray.push(mwlObject[currentDay || ''].mwl);
+        console.log(mwlObject[currentDay || ''].mwl);
+      } else {
+        weekMWLArray.push(0); // Default MWL value if not present in data
+      }
+    }
+
+    return weekMWLArray;
+  }, [date, range]);
+
   return (
     <View
-      borderWidth="$1"
-      borderColor="$borderColor"
-      borderRadius="$8"
-      overflow="hidden"
+      borderWidth='$1'
+      borderColor='$borderColor'
+      borderRadius='$8'
+      overflow='hidden'
     >
       <LineChart
         data={{
@@ -47,23 +73,14 @@ const Graph = ({ interval }: GraphProps) => {
                 : weeklyLabels,
           datasets: [
             {
-              data: [
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-                Math.floor(Math.random() * 5),
-              ],
+              data: weekMWLMap,
             },
           ],
         }}
         width={Dimensions.get('window').width - 40} // from react-native
         height={260}
-        yAxisLabel=""
-        yAxisSuffix=""
+        yAxisLabel=''
+        yAxisSuffix=''
         yAxisInterval={1} // optional, defaults to 1
         chartConfig={chartConfig}
         bezier

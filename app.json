@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "app-root",
-    "slug": "app-root",
+    "name": "Serotonin",
+    "slug": "serotonin",
+    "description": "A mental workload tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -59,6 +60,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "fe31e56e-4ad3-4645-a4e8-ac0a28a86f50"
+      }
     }
   }
 }

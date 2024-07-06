@@ -21,46 +21,48 @@ const LoginPage = (props: Props) => {
     return <Redirect href='/(protected)' />;
   }
   return (
-    <SafeAreaView
-      className='flex h-full flex-col items-center justify-center p-4'
-      style={{ rowGap: 16 }}
-    >
-      <Image
-        width={236}
-        height={93.3}
-        source={require('../../assets/images/logo-long.png')}
-      />
-      <H4 size='$2'>Login </H4>
-      <View rowGap='$2' alignItems='center'>
-        <Input
-          placeholder='Email'
-          onChange={(e) => {
-            setEmail(e.nativeEvent.text);
-          }}
-          keyboardType='email-address'
-          width='$20'
-          textContentType='emailAddress'
+    <SafeAreaView style={{ rowGap: 16 }}>
+      <YStack
+        justifyContent='center'
+        alignItems='center'
+        gap='$4'
+        style={{ height: '100%' }}
+      >
+        <Image
+          width={236}
+          height={93.3}
+          source={require('../../assets/images/logo-long.png')}
         />
-        <Input
-          placeholder='Password'
-          onChange={(e) => {
-            setPassword(e.nativeEvent.text);
-          }}
-          width='$20'
-          textContentType='password'
-          secureTextEntry
-        />
-
-        <Button width='$20' onPress={() => handleSignIn()}>
-          Submit
-        </Button>
-      </View>
-
-      <YStack gap='$1'>
-        <Text color='$gray10'>New to Serotonin?</Text>
-        <Link href='/signup'>
-          <Text>Create an Account</Text>
-        </Link>
+        <H4 size='$2'>Login </H4>
+        <View rowGap='$2' alignItems='center'>
+          <Input
+            placeholder='Email'
+            onChange={(e) => {
+              setEmail(e.nativeEvent.text);
+            }}
+            keyboardType='email-address'
+            width='$20'
+            textContentType='emailAddress'
+          />
+          <Input
+            placeholder='Password'
+            onChange={(e) => {
+              setPassword(e.nativeEvent.text);
+            }}
+            width='$20'
+            textContentType='password'
+            secureTextEntry
+          />
+          <Button width='$20' onPress={() => handleSignIn()}>
+            Submit
+          </Button>
+        </View>
+        <YStack gap='$1'>
+          <Text color='$gray10'>New to Serotonin?</Text>
+          <Link href='/signup'>
+            <Text>Create an Account</Text>
+          </Link>
+        </YStack>
       </YStack>
     </SafeAreaView>
   );
