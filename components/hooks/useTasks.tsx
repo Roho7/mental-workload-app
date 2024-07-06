@@ -19,7 +19,7 @@ import {
 import { TaskType } from '../ui/TaskCard';
 import { useAuth } from './useAuth';
 
-type MWLObjectType = {
+export type MWLObjectType = {
   [key: string]: { mwl: number; feedback: string };
 };
 
@@ -51,14 +51,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //   ============================================= //
 
   //   GET TASKS
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
-    const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
+  const fetchTasks = useCallback(() => {
+    if (!user) return;
 
-    const taskSubscriber = onSnapshot(taskRef, {
+    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
+    return onSnapshot(taskRef, {
       next: (snapshot) => {
         const tasks = snapshot.docs.map((doc) => ({
           ...(doc.data() as TaskType),
@@ -66,20 +63,36 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         setTasks(tasks as TaskType[]);
       },
     });
-    const mwlSubscriber = onSnapshot(mwlRef, {
+  }, [user]);
+
+  const fetchMwl = useCallback(() => {
+    if (!user) return;
+
+    const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
+    return onSnapshot(mwlRef, {
       next: (snapshot) => {
         const mwl = snapshot.docs.reduce((acc, doc) => {
           return { ...acc, [doc.id]: doc.data() };
         }, {});
-        setMwlObject({ ...mwl } as MWLObjectType);
+        console.log(mwl);
+        setMwlObject(mwl as MWLObjectType);
       },
     });
-    alert('Tasks fetched');
-    return () => {
-      taskSubscriber();
-      mwlSubscriber();
-    };
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const taskUnsubscribe = fetchTasks();
+    const mwlUnsubscribe = fetchMwl();
+
+    alert('Tasks and MWL data fetched');
+
+    return () => {
+      if (taskUnsubscribe) taskUnsubscribe();
+      if (mwlUnsubscribe) mwlUnsubscribe();
+    };
+  }, [user, fetchTasks, fetchMwl]);
 
   const addTask = (task: TaskType) => {
     setTasks([...tasks, task]);
