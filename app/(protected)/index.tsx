@@ -11,6 +11,7 @@ import {
   Avatar,
   Button,
   H1,
+  H2,
   H4,
   ScrollView,
   Text,
@@ -106,7 +107,7 @@ export default function TabOneScreen() {
               })}
             </XStack>
           </View>
-          <Text className="text-2xl">Today's Tasks</Text>
+          <H2>Today's Tasks</H2>
           <ScrollView maxHeight="$20">
             {todaysTasks && todaysTasks?.length > 0 ? (
               todaysTasks?.map((task, index) => (
@@ -118,7 +119,7 @@ export default function TabOneScreen() {
               </View>
             )}
           </ScrollView>
-          <Text className="text-2xl">Inbox</Text>
+          <H1>Inbox</H1>
           <ScrollView maxHeight="$20">
             {todaysTasks && todaysTasks?.length > 0 ? (
               todaysTasks?.map((task, index) => (

@@ -1,7 +1,6 @@
 import { FontAwesome5 } from '@expo/vector-icons';
-import clsx from 'clsx';
 import React from 'react';
-import { Text, View } from 'tamagui';
+import { Text, XStack } from 'tamagui';
 
 export type MwlType = {
   color: string;
@@ -56,10 +55,13 @@ type Props = {
 const MwlBadge = ({ load }: Props) => {
   return (
     load && (
-      <View
-        className={clsx(
-          'flex max-w-min flex-row items-center justify-center rounded-md p-0.5'
-        )}
+      <XStack
+
+        justifyContent='center'
+        alignItems='center'
+        borderRadius={4}
+        padding={0.5}
+        maxWidth='min-content'
         style={{ columnGap: 2 }}
       >
         <FontAwesome5
@@ -68,7 +70,7 @@ const MwlBadge = ({ load }: Props) => {
           size={12}
         />
         <Text color={MwlMap[load].color}>{load}</Text>
-      </View>
+      </XStack>
     )
   );
 };

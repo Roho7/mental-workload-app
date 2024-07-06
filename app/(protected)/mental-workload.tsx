@@ -32,7 +32,7 @@ const MentalWorkloadScreen = () => {
   } = useTasks();
   const [selectedInterval, setSelectedInterval] = useState<
     'daily' | 'weekly' | 'monthly'
-  >(intervalOptions[0]);
+  >(intervalOptions[1]);
   const [date, setDate] = useState<moment.Moment | null>(moment());
   const [range, setRange] = useState<{
     start: moment.Moment | null;
@@ -51,10 +51,10 @@ const MentalWorkloadScreen = () => {
       setTasksOnSelectedDay(
         getTasksByRange(range.start.toDate(), range.end.toDate())
       );
-      console.log(getTasksByRange(range.start.toDate(), range.end.toDate()));
+      // console.log(getTasksByRange(range.start.toDate(), range.end.toDate()));
     } else {
       setTasksOnSelectedDay(getTasksByDate(date.toDate()));
-      console.log(getTasksByDate(date.toDate()));
+      // console.log(getTasksByDate(date.toDate()));
     }
   }, [date, selectedInterval]);
 
@@ -158,7 +158,7 @@ const MentalWorkloadScreen = () => {
           <Text>
             {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback || ''}
           </Text>
-          <Graph interval={selectedInterval} />
+          <Graph interval={selectedInterval} date={date} range={range} />
           {tasksOnSelectedDay && (
             <YStack padding='$4'>
               <H3>Tasks on {date?.format('YYYY-MM-DD')}</H3>
