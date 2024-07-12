@@ -43,8 +43,8 @@ const CalendarScreen = () => {
 
   return (
     <SafeAreaView>
-      <View theme="dark" paddingHorizontal="$2">
-        <H2 marginBottom="$4">Tasks Calendar</H2>
+      <View theme='dark' paddingHorizontal='$2'>
+        <H2 marginBottom='$4'>Tasks Calendar</H2>
         <Calendar
           hideExtraDays
           style={{ borderRadius: 10, backgroundColor: 'black' }}
@@ -64,7 +64,7 @@ const CalendarScreen = () => {
         />
       </View>
       {selectedDateTasks && (
-        <YStack padding="$4">
+        <YStack padding='$4'>
           <H3>Tasks on {selectedDate}</H3>
           {selectedDateTasks.length > 0 ? (
             selectedDateTasks.map((task, index) => (

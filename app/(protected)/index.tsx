@@ -33,30 +33,30 @@ export default function TabOneScreen() {
   return (
     <ScrollView>
       <SafeAreaView>
-        <YStack padding="$4" gap="$4">
+        <YStack padding='$4' gap='$4'>
           <View>
-            <XStack justifyContent="space-between">
+            <XStack justifyContent='space-between' alignItems='center'>
               <H1>Hi {user?.displayName || 'user'}</H1>
               <Dropdown
                 action={() => {}}
                 elements={[
-                  <Button size="$5" onPress={() => logout()}>
-                    <XStack gap="$3">
+                  <Button size='$5' onPress={() => logout()}>
+                    <XStack gap='$3'>
                       <Text>Logout</Text>
                     </XStack>
                   </Button>,
                 ]}
               >
-                <Avatar size="$5" circular>
+                <Avatar size='$3' circular>
                   <Avatar.Image
-                    accessibilityLabel="Cam"
-                    src={user?.photoURL || ''}
+                    accessibilityLabel='Cam'
+                    src={`https://ui-avatars.com/api/?name=${user?.displayName}`}
                   />
-                  <Avatar.Fallback backgroundColor="$blue4" />
+                  <Avatar.Fallback backgroundColor='$blue4' />
                 </Avatar>
               </Dropdown>
             </XStack>
-            <H4 color="$accentBackground">
+            <H4 color='$accentBackground'>
               You have {todaysTasks.length} tasks remaining today
             </H4>
           </View>
@@ -89,8 +89,8 @@ export default function TabOneScreen() {
                 width: '100%',
                 justifyContent: 'center',
               }}
-              gap="$2"
-              paddingTop="$4"
+              gap='$2'
+              paddingTop='$4'
             >
               {cardArray.map((card, index) => {
                 return (
@@ -108,26 +108,26 @@ export default function TabOneScreen() {
             </XStack>
           </View>
           <H2>Today's Tasks</H2>
-          <ScrollView maxHeight="$20">
+          <ScrollView maxHeight='$20'>
             {todaysTasks && todaysTasks?.length > 0 ? (
               todaysTasks?.map((task, index) => (
                 <TaskCard task={task} key={index} />
               ))
             ) : (
-              <View paddingVertical="$2">
-                <Text color="$gray10">No tasks for today 🕸 </Text>
+              <View paddingVertical='$2'>
+                <Text color='$gray10'>No tasks for today 🕸 </Text>
               </View>
             )}
           </ScrollView>
           <H1>Inbox</H1>
-          <ScrollView maxHeight="$20">
+          <ScrollView maxHeight='$20'>
             {todaysTasks && todaysTasks?.length > 0 ? (
               todaysTasks?.map((task, index) => (
                 <TaskCard task={task} key={index} />
               ))
             ) : (
-              <View paddingVertical="$2">
-                <Text color="$gray10">No tasks for today 🕸 </Text>
+              <View paddingVertical='$2'>
+                <Text color='$gray10'>No tasks for today 🕸 </Text>
               </View>
             )}
           </ScrollView>
