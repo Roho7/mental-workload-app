@@ -13,6 +13,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from 'react';
@@ -35,7 +36,8 @@ type TaskContextType = {
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
   generateMentalWorkload: (date: string | undefined) => void;
-  mwlObject: MWLObjectType;
+  fetchTasksAndMwl: () => void;
+  mwlObject: React.MutableRefObject<MWLObjectType>;
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
@@ -44,7 +46,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
-  const [mwlObject, setMwlObject] = useState<MWLObjectType>({});
+  const mwlObject = useRef<MWLObjectType>({});
 
   //   ============================================= //
   //                       EFFECTS                   //
@@ -55,8 +57,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     try {
-      const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
-      const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
+      const userUid = user.uid;
+
+      // References to the tasks and mwl collections under the specific user
+      const taskRef = collection(db, `tbl_users/${userUid}/tasks`);
+      const mwlRef = collection(db, `tbl_users/${userUid}/mwl`);
 
       // Fetch tasks and MWL data concurrently
       const [taskSnapshot, mwlSnapshot] = await Promise.all([
@@ -66,16 +71,20 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Process tasks
       const tasks = taskSnapshot.docs.map((doc) => doc.data());
-      setTasks(tasks as TaskType[]);
+      console.log('Fetched tasks:', tasks); // Log fetched tasks
 
       // Process MWL data
       const mwl = mwlSnapshot.docs.reduce((acc: Record<string, any>, doc) => {
         acc[doc.id] = doc.data();
         return acc;
       }, {});
-      setMwlObject(mwl);
+      console.log('Fetched MWL:', mwl); // Log fetched MWL
 
-      console.log('Tasks and MWL data fetched');
+      // Update state for both tasks and MWL
+      setTasks(tasks as TaskType[]);
+      mwlObject.current = mwl as MWLObjectType;
+
+      console.log('Tasks and MWL data set in state');
     } catch (error) {
       console.error('Error fetching data: ', error);
     }
@@ -83,7 +92,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     fetchTasksAndMwl();
-  }, [tasks, user]);
+  }, [fetchTasksAndMwl, user]);
 
   const addTask = (task: TaskType) => {
     setTasks([...tasks, task]);
@@ -209,6 +218,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       todaysTasks,
       completedTasks,
       generateMentalWorkload,
+      fetchTasksAndMwl,
       addTask,
       removeTask,
       updateTask,

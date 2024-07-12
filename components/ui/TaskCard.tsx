@@ -6,7 +6,7 @@ import { Pressable, Vibration } from 'react-native';
 import OutsidePressHandler from 'react-native-outside-press';
 import { Button, H4, Text, View, XStack, YStack } from 'tamagui';
 import { useTasks } from '../hooks/useTasks';
-import MwlBadge from './MwlBadge';
+import MwlBadge from './DifficultyBadge';
 import PriorityBadge from './PriorityBadge';
 
 export type TaskType = {

@@ -1,14 +1,15 @@
 import { useTasks } from '@/components/hooks/useTasks';
 import DateNavigator from '@/components/ui/DateNavigator';
+import { MwlMap } from '@/components/ui/DifficultyBadge';
 
 import Graph from '@/components/ui/Graph';
-import { MwlMap } from '@/components/ui/MwlBadge';
+
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard, { TaskType } from '@/components/ui/TaskCard';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { RefreshControl, SafeAreaView } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   Card,
@@ -32,6 +33,7 @@ const MentalWorkloadScreen = () => {
     getTasksByDate,
     getTasksByRange,
     mwlObject,
+    fetchTasksAndMwl,
   } = useTasks();
   const width = useWindowDimensions().width;
 
@@ -48,6 +50,14 @@ const MentalWorkloadScreen = () => {
   >(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchTasksAndMwl();
+    setRefreshing(false);
+  }, [fetchTasksAndMwl]);
+
   useEffect(() => {
     if (!date) {
       setTasksOnSelectedDay(todaysTasks);
@@ -60,33 +70,23 @@ const MentalWorkloadScreen = () => {
       // console.log(getTasksByRange(range.start.toDate(), range.end.toDate()));
     } else {
       setTasksOnSelectedDay(getTasksByDate(date.toDate()));
-      // console.log(getTasksByDate(date.toDate()));
     }
   }, [date, selectedInterval]);
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <YStack gap='$4' padding='$4'>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          backgroundColor: '#000',
+          padding: 16,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <YStack gap='$4'>
           <H2>Mental Workload</H2>
-          {/* <Dropdown
-          action={() => setSelectedInterval}
-          elements={intervalOptions.map((item) => {
-            return (
-              <Button size="$5" onPress={() => setSelectedInterval(item)}>
-                <XStack gap="$3">
-                  <Text style={{ textTransform: 'capitalize' }}>{item}</Text>
-                </XStack>
-              </Button>
-            );
-          })}
-        >
-          <Button borderRadius="$4" marginLeft="auto" backgroundColor="$blue8">
-            <Text style={{ textTransform: 'capitalize' }}>
-              {selectedInterval}
-            </Text>
-          </Button>
-        </Dropdown> */}
           <Card
             paddingVertical='$6'
             paddingHorizontal='$4'
@@ -104,15 +104,11 @@ const MentalWorkloadScreen = () => {
                   setRange={setRange}
                 />
               </XStack>
-              {mwlObject[date?.format('DD-MM-YYYY') || ''] ? (
+              {mwlObject.current[date?.format('DD-MM-YYYY') || ''] ? (
                 <MwlFeedbackLabel
                   mwl={
-                    mwlObject?.[date?.format('DD-MM-YYYY') || '']?.mwl as
-                      | 1
-                      | 2
-                      | 3
-                      | 4
-                      | 5
+                    mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                      ?.mwl as 1 | 2 | 3 | 4 | 5
                   }
                 />
               ) : (
@@ -149,12 +145,8 @@ const MentalWorkloadScreen = () => {
                   borderRadius='$8'
                 >
                   <H2>
-                    {(mwlObject?.[date?.format('DD-MM-YYYY') || '']?.mwl as
-                      | 1
-                      | 2
-                      | 3
-                      | 4
-                      | 5) || 0}
+                    {(mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                      ?.mwl as 1 | 2 | 3 | 4 | 5) || 0}
                   </H2>
 
                   <Text color='$gray10'>MWL Score</Text>
@@ -178,8 +170,8 @@ const MentalWorkloadScreen = () => {
                   borderRadius='$8'
                 >
                   <Text>
-                    {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback ||
-                      ''}
+                    {mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                      ?.feedback || ''}
                   </Text>
                 </Card>,
               ]}

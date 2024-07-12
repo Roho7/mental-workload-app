@@ -1,6 +1,6 @@
 import { FontAwesome5 } from '@expo/vector-icons';
 import React from 'react';
-import { Text, XStack } from 'tamagui';
+import { XStack } from 'tamagui';
 
 export type MwlType = {
   color: string;
@@ -47,16 +47,47 @@ export const MwlMap: Record<number, MwlType> = {
     feedbackText: 'Not enough challenge',
   },
 };
+export const DifficultyMap: Record<number, any> = {
+  5: {
+    color: '#EA5757',
+    text: 'Quite Difficult',
+    icon: 'flushed',
+    iconColor: '#DC2626',
+  },
+  4: {
+    color: '#F97316',
+    text: 'Difficult',
+    icon: 'grin-beam-sweat',
+    iconColor: '#FB7185',
+  },
+  3: {
+    color: '#34C51E',
+    text: 'Doable',
+    icon: 'smile-wink',
+    iconColor: '#F59E0B',
+  },
+  2: {
+    color: '#A1DF3B',
+    text: 'Easy',
+    icon: 'meh',
+    iconColor: '#34D399',
+  },
+  1: {
+    color: '#82E9B2',
+    text: 'Very easy',
+    icon: 'meh-rolling-eyes',
+    iconColor: '#BEF264',
+  },
+};
 
 type Props = {
   load: number;
 };
 
-const MwlBadge = ({ load }: Props) => {
+const DifficultyBadge = ({ load }: Props) => {
   return (
     load && (
       <XStack
-
         justifyContent='center'
         alignItems='center'
         borderRadius={4}
@@ -65,14 +96,13 @@ const MwlBadge = ({ load }: Props) => {
         style={{ columnGap: 2 }}
       >
         <FontAwesome5
-          name={MwlMap[load]?.icon || 'brain'}
-          color={MwlMap[load]?.iconColor || 'white'}
-          size={12}
+          name={DifficultyMap[load]?.icon || 'muscle'}
+          color={'white'}
+          size={16}
         />
-        <Text color={MwlMap[load].color}>{load}</Text>
       </XStack>
     )
   );
 };
 
-export default MwlBadge;
+export default DifficultyBadge;

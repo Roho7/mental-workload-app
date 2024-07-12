@@ -10,12 +10,14 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "fb:serve": "cd ./functions && yarn serve"
+    "fb:serve": "cd ./functions && yarn serve",
+    "eas:build:android": "eas build --platform android --profile development"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@google-cloud/vertexai": "^1.3.0",
     "@react-native-async-storage/async-storage": "1.23.1",
