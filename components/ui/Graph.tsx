@@ -44,10 +44,9 @@ const Graph = ({ interval, date, range }: GraphProps) => {
         ?.clone()
         .add(i, 'days')
         .format('DD-MM-YYYY');
-      console.log(currentDay);
-      if (mwlObject[currentDay || '']) {
-        weekMWLArray.push(mwlObject[currentDay || ''].mwl);
-        console.log(mwlObject[currentDay || ''].mwl);
+
+      if (mwlObject.current[currentDay || '']) {
+        weekMWLArray.push(mwlObject.current[currentDay || ''].mwl);
       } else {
         weekMWLArray.push(0); // Default MWL value if not present in data
       }

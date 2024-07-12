@@ -2,7 +2,6 @@ import { useTasks } from '@/components/hooks/useTasks';
 import TaskCard, { TaskType } from '@/components/ui/TaskCard';
 import React, { useState } from 'react';
 import { Calendar, CalendarUtils, DateData } from 'react-native-calendars';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { H2, H3, Text, View, YStack } from 'tamagui';
 
 const CalendarScreen = () => {
@@ -42,7 +41,7 @@ const CalendarScreen = () => {
   };
 
   return (
-    <SafeAreaView>
+    <>
       <View theme='dark' paddingHorizontal='$2'>
         <H2 marginBottom='$4'>Tasks Calendar</H2>
         <Calendar
@@ -75,7 +74,7 @@ const CalendarScreen = () => {
           )}
         </YStack>
       )}
-    </SafeAreaView>
+    </>
   );
 };
 
