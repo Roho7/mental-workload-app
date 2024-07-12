@@ -7,7 +7,8 @@ import { db } from '@/utils/firebase';
 import { router } from 'expo-router';
 import { addDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import uuid from 'react-native-uuid';
 import { Button, H2, H3, Input, Text, TextArea, XStack, YStack } from 'tamagui';
 

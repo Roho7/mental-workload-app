@@ -3,7 +3,7 @@ import {
   addDoc,
   collection,
   doc,
-  onSnapshot,
+  getDocs,
   updateDoc,
 } from 'firebase/firestore';
 import moment from 'moment';
@@ -51,48 +51,39 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //   ============================================= //
 
   //   GET TASKS
-  const fetchTasks = useCallback(() => {
+  const fetchTasksAndMwl = useCallback(async () => {
     if (!user) return;
 
-    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
-    return onSnapshot(taskRef, {
-      next: (snapshot) => {
-        const tasks = snapshot.docs.map((doc) => ({
-          ...(doc.data() as TaskType),
-        }));
-        setTasks(tasks as TaskType[]);
-      },
-    });
-  }, [user]);
+    try {
+      const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
+      const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
 
-  const fetchMwl = useCallback(() => {
-    if (!user) return;
+      // Fetch tasks and MWL data concurrently
+      const [taskSnapshot, mwlSnapshot] = await Promise.all([
+        getDocs(taskRef),
+        getDocs(mwlRef),
+      ]);
 
-    const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
-    return onSnapshot(mwlRef, {
-      next: (snapshot) => {
-        const mwl = snapshot.docs.reduce((acc, doc) => {
-          return { ...acc, [doc.id]: doc.data() };
-        }, {});
-        console.log(mwl);
-        setMwlObject(mwl as MWLObjectType);
-      },
-    });
+      // Process tasks
+      const tasks = taskSnapshot.docs.map((doc) => doc.data());
+      setTasks(tasks as TaskType[]);
+
+      // Process MWL data
+      const mwl = mwlSnapshot.docs.reduce((acc: Record<string, any>, doc) => {
+        acc[doc.id] = doc.data();
+        return acc;
+      }, {});
+      setMwlObject(mwl);
+
+      console.log('Tasks and MWL data fetched');
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    }
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-
-    const taskUnsubscribe = fetchTasks();
-    const mwlUnsubscribe = fetchMwl();
-
-    alert('Tasks and MWL data fetched');
-
-    return () => {
-      if (taskUnsubscribe) taskUnsubscribe();
-      if (mwlUnsubscribe) mwlUnsubscribe();
-    };
-  }, [user, fetchTasks, fetchMwl]);
+    fetchTasksAndMwl();
+  }, [tasks, user]);
 
   const addTask = (task: TaskType) => {
     setTasks([...tasks, task]);
