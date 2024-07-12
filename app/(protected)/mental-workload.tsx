@@ -7,6 +7,7 @@ import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard, { TaskType } from '@/components/ui/TaskCard';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
+import Carousel from 'react-native-reanimated-carousel';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
@@ -15,6 +16,8 @@ import {
   H3,
   ScrollView,
   Text,
+  useWindowDimensions,
+  View,
   XStack,
   YStack,
 } from 'tamagui';
@@ -30,6 +33,8 @@ const MentalWorkloadScreen = () => {
     getTasksByRange,
     mwlObject,
   } = useTasks();
+  const width = useWindowDimensions().width;
+
   const [selectedInterval, setSelectedInterval] = useState<
     'daily' | 'weekly' | 'monthly'
   >(intervalOptions[1]);
@@ -41,6 +46,7 @@ const MentalWorkloadScreen = () => {
   const [tasksOnSelectedDay, setTasksOnSelectedDay] = useState<
     TaskType[] | null
   >(null);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
 
   useEffect(() => {
     if (!date) {
@@ -111,6 +117,7 @@ const MentalWorkloadScreen = () => {
                 />
               ) : (
                 <Button
+                  marginBlock='$4'
                   color='$color'
                   onPress={() => {
                     generateMentalWorkload(date?.toISOString());
@@ -155,10 +162,68 @@ const MentalWorkloadScreen = () => {
               </XStack>
             </YStack>
           </Card>
-          <Text>
-            {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback || ''}
-          </Text>
-          <Graph interval={selectedInterval} date={date} range={range} />
+          <View flex={1}>
+            <Carousel
+              loop={false}
+              width={width}
+              height={width / 1.5}
+              data={[
+                <Graph interval={selectedInterval} date={date} range={range} />,
+                <Card
+                  paddingVertical='$6'
+                  paddingHorizontal='$4'
+                  borderColor='$blue4'
+                  borderWidth='$1'
+                  backgroundColor='$background0'
+                  borderRadius='$8'
+                >
+                  <Text>
+                    {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback ||
+                      ''}
+                  </Text>
+                </Card>,
+              ]}
+              style={{ width: '100%' }}
+              pagingEnabled={true}
+              onSnapToItem={(index) => setActiveCardIndex(index)}
+              renderItem={({ index, item }) => {
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <View style={{ width: '90%' }}>{item}</View>
+                  </View>
+                );
+              }}
+            />
+            <XStack
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+              }}
+              gap='$2'
+              paddingTop='$4'
+            >
+              {[1, 2].map((card, index) => {
+                return (
+                  <View
+                    key={index}
+                    borderRadius={10}
+                    backgroundColor={
+                      index === activeCardIndex ? '$blue10' : '$gray10'
+                    }
+                    height={4}
+                    width={4}
+                  ></View>
+                );
+              })}
+            </XStack>
+          </View>
           {tasksOnSelectedDay && (
             <YStack padding='$4'>
               <H3>Tasks on {date?.format('YYYY-MM-DD')}</H3>
