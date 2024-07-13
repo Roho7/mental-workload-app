@@ -43,7 +43,7 @@ const CalendarScreen = () => {
 
   return (
     <>
-      <View theme='dark' paddingHorizontal='$2'>
+      <View paddingHorizontal='$2'>
         <H2 marginBottom='$4'>Tasks Calendar</H2>
         <Calendar
           hideExtraDays
