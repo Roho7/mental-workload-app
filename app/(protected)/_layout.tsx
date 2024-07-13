@@ -1,11 +1,11 @@
 import { useAuth } from '@/components/hooks/useAuth';
-import { TaskProvider } from '@/components/hooks/useTasks';
 import Colors from '@/constants/Colors';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Redirect, Tabs } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'tamagui';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -36,7 +36,7 @@ export default function TabLayout() {
     return <Redirect href='/login' />;
   }
   return (
-    <TaskProvider>
+    <SafeAreaView style={{ flex: 1, flexGrow: 1, backgroundColor: 'black' }}>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -107,6 +107,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </TaskProvider>
+    </SafeAreaView>
   );
 }

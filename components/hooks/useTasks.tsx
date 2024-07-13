@@ -3,7 +3,7 @@ import {
   addDoc,
   collection,
   doc,
-  onSnapshot,
+  getDocs,
   updateDoc,
 } from 'firebase/firestore';
 import moment from 'moment';
@@ -13,6 +13,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from 'react';
@@ -35,7 +36,8 @@ type TaskContextType = {
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
   generateMentalWorkload: (date: string | undefined) => void;
-  mwlObject: MWLObjectType;
+  fetchTasksAndMwl: () => void;
+  mwlObject: React.MutableRefObject<MWLObjectType>;
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
@@ -44,55 +46,53 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
-  const [mwlObject, setMwlObject] = useState<MWLObjectType>({});
+  const mwlObject = useRef<MWLObjectType>({});
 
   //   ============================================= //
   //                       EFFECTS                   //
   //   ============================================= //
 
   //   GET TASKS
-  const fetchTasks = useCallback(() => {
+  const fetchTasksAndMwl = useCallback(async () => {
     if (!user) return;
 
-    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
-    return onSnapshot(taskRef, {
-      next: (snapshot) => {
-        const tasks = snapshot.docs.map((doc) => ({
-          ...(doc.data() as TaskType),
-        }));
-        setTasks(tasks as TaskType[]);
-      },
-    });
-  }, [user]);
+    try {
+      const userUid = user.uid;
 
-  const fetchMwl = useCallback(() => {
-    if (!user) return;
+      // References to the tasks and mwl collections under the specific user
+      const taskRef = collection(db, `tbl_users/${userUid}/tasks`);
+      const mwlRef = collection(db, `tbl_users/${userUid}/mwl`);
 
-    const mwlRef = collection(db, `tbl_users/${user.uid}/mwl`);
-    return onSnapshot(mwlRef, {
-      next: (snapshot) => {
-        const mwl = snapshot.docs.reduce((acc, doc) => {
-          return { ...acc, [doc.id]: doc.data() };
-        }, {});
-        console.log(mwl);
-        setMwlObject(mwl as MWLObjectType);
-      },
-    });
+      // Fetch tasks and MWL data concurrently
+      const [taskSnapshot, mwlSnapshot] = await Promise.all([
+        getDocs(taskRef),
+        getDocs(mwlRef),
+      ]);
+
+      // Process tasks
+      const tasks = taskSnapshot.docs.map((doc) => doc.data());
+      console.log('Fetched tasks:', tasks); // Log fetched tasks
+
+      // Process MWL data
+      const mwl = mwlSnapshot.docs.reduce((acc: Record<string, any>, doc) => {
+        acc[doc.id] = doc.data();
+        return acc;
+      }, {});
+      console.log('Fetched MWL:', mwl); // Log fetched MWL
+
+      // Update state for both tasks and MWL
+      setTasks(tasks as TaskType[]);
+      mwlObject.current = mwl as MWLObjectType;
+
+      console.log('Tasks and MWL data set in state');
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    }
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-
-    const taskUnsubscribe = fetchTasks();
-    const mwlUnsubscribe = fetchMwl();
-
-    alert('Tasks and MWL data fetched');
-
-    return () => {
-      if (taskUnsubscribe) taskUnsubscribe();
-      if (mwlUnsubscribe) mwlUnsubscribe();
-    };
-  }, [user, fetchTasks, fetchMwl]);
+    fetchTasksAndMwl();
+  }, [fetchTasksAndMwl, user]);
 
   const addTask = (task: TaskType) => {
     setTasks([...tasks, task]);
@@ -218,6 +218,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       todaysTasks,
       completedTasks,
       generateMentalWorkload,
+      fetchTasksAndMwl,
       addTask,
       removeTask,
       updateTask,
