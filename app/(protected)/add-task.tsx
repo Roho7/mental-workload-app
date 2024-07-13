@@ -9,16 +9,19 @@ import PriorityBadge from '@/components/ui/PriorityBadge';
 import { PriorityMap } from '@/constants/TaskParameters';
 import { PriorityValues, TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
+import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import moment from 'moment';
 import React, { useState } from 'react';
+import { Vibration } from 'react-native';
 
 import uuid from 'react-native-uuid';
-import { Button, H2, H3, Input, Text, TextArea, XStack, YStack } from 'tamagui';
+import { Button, H2, Input, Text, TextArea, XStack, YStack } from 'tamagui';
 
 const AddTask = ({}) => {
   const { user } = useAuth();
+  const toast = useToastController();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<PriorityValues>(0);
@@ -51,6 +54,10 @@ const AddTask = ({}) => {
       userId: user.uid,
     });
 
+    Vibration.vibrate(10);
+    toast.show('Task added!', {
+      native: true,
+    });
     reset();
     router.back();
   };
@@ -66,7 +73,6 @@ const AddTask = ({}) => {
     <YStack gap='$4' paddingInline='$2'>
       <XStack alignItems='center' gap='$4'>
         <H2>Add Task</H2>
-        <H3 color='$gray5'>#TaskId</H3>
       </XStack>
       <Input
         placeholder='New Task'
@@ -79,7 +85,8 @@ const AddTask = ({}) => {
         numberOfLines={4}
         multiline={true}
         fontSize='$4'
-        style={{ height: 100 }}
+        height={100}
+        verticalAlign={'top'}
         onChange={(e) => setDescription(e.nativeEvent.text)}
         value={description}
       />
