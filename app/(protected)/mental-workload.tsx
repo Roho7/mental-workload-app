@@ -5,7 +5,8 @@ import { MwlMap } from '@/components/ui/DifficultyBadge';
 import Graph from '@/components/ui/Graph';
 
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
-import TaskCard, { TaskType } from '@/components/ui/TaskCard';
+import TaskCard from '@/components/ui/TaskCard';
+import { TaskType } from '@/constants/types';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView } from 'react-native';

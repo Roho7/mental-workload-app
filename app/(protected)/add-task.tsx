@@ -5,10 +5,13 @@ import DifficultyBadge, {
 } from '@/components/ui/DifficultyBadge';
 import Dropdown from '@/components/ui/Dropdown';
 
-import PriorityBadge, { PriorityMap } from '@/components/ui/PriorityBadge';
+import PriorityBadge from '@/components/ui/PriorityBadge';
+import { PriorityMap } from '@/constants/TaskParameters';
+import { PriorityValues, TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
 import { router } from 'expo-router';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import moment from 'moment';
 import React, { useState } from 'react';
 
 import uuid from 'react-native-uuid';
@@ -18,20 +21,26 @@ const AddTask = ({}) => {
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState(0);
+  const [priority, setPriority] = useState<PriorityValues>(0);
   const [mwl, setMwl] = useState(1);
-  const [date, setDate] = useState<Date | null>(null);
+
+  const [startDate, setStartDate] = useState<Timestamp | null>(Timestamp.now());
+  const [endDate, setEndDate] = useState<Timestamp | null>(
+    Timestamp.fromDate(moment(Timestamp.now().toDate()).add(1, 'hour').toDate())
+  );
 
   const handleSubmit = async () => {
     if (!user) {
       return;
     }
-    const insertData = {
+    const insertData: TaskType = {
+      userId: user.uid,
       title: title,
       description: description,
       priority: priority,
-      mwl: mwl,
-      dueDate: date,
+      difficulty: mwl,
+      startDate: startDate,
+      endDate: endDate,
       taskId: uuid.v4().toString(),
     };
 
@@ -50,7 +59,8 @@ const AddTask = ({}) => {
     setDescription('');
     setPriority(0);
     setMwl(1);
-    setDate(null);
+    setStartDate(null);
+    setEndDate(null);
   };
   return (
     <YStack gap='$4' paddingInline='$2'>
@@ -80,7 +90,7 @@ const AddTask = ({}) => {
             <Button
               size='$5'
               onPress={() => {
-                setPriority(item);
+                setPriority(item as PriorityValues);
               }}
             >
               <XStack gap='$3'>
@@ -97,7 +107,7 @@ const AddTask = ({}) => {
         </Button>
       </Dropdown>
       {/* ============================================ */}
-      {/*                   MWL DROPDOWN               */}
+      {/*               DIFFICULTY DROPDOWN            */}
       {/* ============================================ */}
       <Dropdown
         action={() => setMwl}
@@ -123,9 +133,15 @@ const AddTask = ({}) => {
         </Button>
       </Dropdown>
       {/* ============================================ */}
-      {/*                   DATE PICKER                */}
+      {/*                   DATE PICKERS               */}
       {/* ============================================ */}
-      <DateTimePicker date={date} setDate={setDate} />
+      <DateTimePicker
+        date={startDate}
+        setDate={setStartDate}
+        label='Start at'
+      />
+      <DateTimePicker date={endDate} setDate={setEndDate} label='End at' />
+
       <Button
         theme='green'
         borderWidth='$0.25'
