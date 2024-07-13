@@ -1,6 +1,6 @@
-import { Timestamp } from 'firebase/firestore';
 import React, { useState } from 'react';
 
+import { TaskType } from '@/constants/types';
 import { Feather } from '@expo/vector-icons';
 import { Pressable, Vibration } from 'react-native';
 import OutsidePressHandler from 'react-native-outside-press';
@@ -8,18 +8,6 @@ import { Button, H4, Text, View, XStack, YStack } from 'tamagui';
 import { useTasks } from '../hooks/useTasks';
 import MwlBadge from './DifficultyBadge';
 import PriorityBadge from './PriorityBadge';
-
-export type TaskType = {
-  bucket?: string;
-  title: string;
-  description: string;
-  status?: 'done' | 'pending' | 'overdue';
-  difficulty: number;
-  dueDate: Timestamp;
-  priority: 1 | 2 | 3 | 4 | 0;
-  taskId: string;
-  userId: string;
-};
 
 const TaskCard = ({ task }: { task: TaskType }) => {
   const [showActions, setShowActions] = useState(false);
@@ -79,7 +67,7 @@ const TaskCard = ({ task }: { task: TaskType }) => {
             <YStack gap='$2'>
               <Text color='$gray10'>{task.description}</Text>
               <Text color='$blue8'>
-                {task.dueDate?.toDate().toDateString()}
+                {task.startDate?.toDate().toDateString()}
               </Text>
             </YStack>
           ) : (
