@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Text, View, YStack } from 'tamagui';
 import { useTasks } from '../hooks/useTasks';
@@ -119,22 +119,25 @@ const DateNavigator = ({
   };
 
   return (
-    <YStack gap="$4" width="100%" justifyContent="center">
+    <YStack gap='$4' width='100%' justifyContent='center'>
       <View
-        justifyContent="space-between"
-        flexDirection="row"
-        alignItems="center"
-        width="100%"
+        justifyContent='space-between'
+        flexDirection='row'
+        alignItems='center'
+        width='100%'
       >
         {!showCalendar && (
           <TouchableOpacity onPress={previousDay}>
-            <Feather name="chevron-left" color="white" size={20} />
+            <Feather name='chevron-left' color='white' size={20} />
           </TouchableOpacity>
         )}
         <Text
-          onPress={() => setShowCalendar(!showCalendar)}
-          textAlign="center"
-          marginHorizontal="auto"
+          onPress={() => {
+            Vibration.vibrate(10);
+            setShowCalendar(!showCalendar);
+          }}
+          textAlign='center'
+          marginHorizontal='auto'
         >
           {range.start
             ? `${range.start.format('YYYY-MM-DD')}${range.end ? ` - ${range.end.format('YYYY-MM-DD')}` : ''}`
@@ -142,7 +145,7 @@ const DateNavigator = ({
         </Text>
         {!showCalendar && (
           <TouchableOpacity onPress={nextDay}>
-            <Feather name="chevron-right" color="white" size={20} />
+            <Feather name='chevron-right' color='white' size={20} />
           </TouchableOpacity>
         )}
       </View>

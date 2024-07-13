@@ -11,10 +11,11 @@ const PriorityBadge = ({ priority }: Props) => {
   return (
     <XStack
       backgroundColor={PriorityMap[priority].color}
+      borderRadius={999}
       justifyContent='center'
       alignItems='center'
-      height={4}
-      width={4}
+      height={16}
+      width={16}
     >
       <Feather name={PriorityMap[priority].icon} size={12} color='white' />
     </XStack>

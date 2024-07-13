@@ -207,6 +207,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     return Object.keys(dateCount).map((date) => ({
       date,
       tasks: dateCount[date],
+      mwl: mwlObject.current[date]?.mwl || 0,
     }));
   }, [tasks]);
 

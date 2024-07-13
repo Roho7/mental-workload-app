@@ -1,15 +1,15 @@
 import { useTasks } from '@/components/hooks/useTasks';
 import DateNavigator from '@/components/ui/DateNavigator';
-import { MwlMap } from '@/components/ui/DifficultyBadge';
 
 import Graph from '@/components/ui/Graph';
 
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard from '@/components/ui/TaskCard';
 import { TaskType } from '@/constants/types';
+import { useToastController } from '@tamagui/toast';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView } from 'react-native';
+import { RefreshControl, SafeAreaView, Vibration } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import {
   Button,
@@ -50,13 +50,18 @@ const MentalWorkloadScreen = () => {
     TaskType[] | null
   >(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
-
   const [refreshing, setRefreshing] = useState(false);
 
+  const toast = useToastController();
+
   const onRefresh = useCallback(() => {
+    Vibration.vibrate(10);
     setRefreshing(true);
     fetchTasksAndMwl();
     setRefreshing(false);
+    toast.show('Refreshed!', {
+      native: true,
+    });
   }, [fetchTasksAndMwl]);
 
   useEffect(() => {
@@ -123,26 +128,50 @@ const MentalWorkloadScreen = () => {
                   Calculate Workload
                 </Button>
               )}
-              <XStack gap='$4' justifyContent='space-between'>
-                <YStack gap='$2' justifyContent='center' alignItems='center'>
+              <XStack gap='$4'>
+                <YStack
+                  gap='$2'
+                  justifyContent='center'
+                  alignItems='center'
+                  maxWidth='$8'
+                >
                   <H2>{tasksOnSelectedDay?.length || 0}</H2>
-                  <Text color='$gray10'>Tasks Planned</Text>
+                  <Text color='$gray10' textAlign='center'>
+                    Tasks Planned
+                  </Text>
                 </YStack>
-                <YStack gap='$2' justifyContent='center' alignItems='center'>
+                <YStack
+                  gap='$2'
+                  justifyContent='center'
+                  alignItems='center'
+                  maxWidth='$8'
+                >
                   <H2>
                     {tasksOnSelectedDay?.filter(
                       (task) => task.status === 'done'
                     ).length || 0}
                   </H2>
-                  <Text color='$gray10'>Tasks Completed</Text>
+                  <Text color='$gray10' textAlign='center'>
+                    Tasks Completed
+                  </Text>
                 </YStack>
                 <YStack
                   gap='$2'
                   justifyContent='center'
                   alignItems='center'
                   borderWidth='$1'
-                  borderColor={MwlMap[5].color}
-                  padding='$4'
+                  maxWidth='$8'
+                  borderColor={
+                    ''
+                    // mwlObject.current
+                    //   ? MwlMap[
+                    //       mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                    //         ?.mwl
+                    //     ].color
+                    //   : ''
+                  }
+                  padding='$2'
+                  paddingBlock='$4'
                   borderRadius='$8'
                 >
                   <H2>
@@ -150,7 +179,9 @@ const MentalWorkloadScreen = () => {
                       ?.mwl as 1 | 2 | 3 | 4 | 5) || 0}
                   </H2>
 
-                  <Text color='$gray10'>MWL Score</Text>
+                  <Text color='$gray10' textAlign='center'>
+                    MWL Score
+                  </Text>
                 </YStack>
               </XStack>
             </YStack>
