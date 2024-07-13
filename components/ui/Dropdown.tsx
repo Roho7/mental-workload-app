@@ -14,16 +14,16 @@ const Dropdown = ({
   ...props
 }: PopoverProps & DropdownProps) => {
   return (
-    <Popover size="$5" allowFlip {...props}>
+    <Popover size='$5' allowFlip {...props}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
-      <Adapt when="sm" platform="touch">
-        <Popover.Sheet modal dismissOnSnapToBottom>
-          <Popover.Sheet.Frame padding="$4">
+      <Adapt platform='touch'>
+        <Popover.Sheet dismissOnSnapToBottom animation='quickest'>
+          <Popover.Sheet.Frame padding='$4'>
             <Adapt.Contents />
           </Popover.Sheet.Frame>
           <Popover.Sheet.Overlay
-            animation="lazy"
+            animation='quick'
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
           />
@@ -32,22 +32,15 @@ const Dropdown = ({
 
       <Popover.Content
         borderWidth={1}
-        borderColor="$borderColor"
+        borderColor='$borderColor'
         enterStyle={{ y: -10, opacity: 0 }}
         exitStyle={{ y: -10, opacity: 0 }}
         elevate
-        animation={[
-          'quick',
-          {
-            opacity: {
-              overshootClamping: true,
-            },
-          },
-        ]}
+        animation='bouncy'
       >
-        <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
+        <Popover.Arrow borderWidth={1} borderColor='$borderColor' />
 
-        <YStack space="$3">
+        <YStack gap='$3'>
           {elements.map((element, index) => {
             return (
               <Popover.Close asChild key={index}>
