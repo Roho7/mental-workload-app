@@ -1,11 +1,5 @@
 import { db } from '@/utils/firebase';
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  updateDoc,
-} from 'firebase/firestore';
+import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 import moment from 'moment';
 import {
   createContext,
@@ -17,7 +11,8 @@ import {
   useState,
   useTransition,
 } from 'react';
-import { TaskType } from '../ui/TaskCard';
+
+import { TaskType } from '@/constants/types';
 import { useAuth } from './useAuth';
 
 export type MWLObjectType = {
@@ -32,7 +27,7 @@ type TaskContextType = {
   addTask: (task: TaskType) => void;
   removeTask: (id: string) => void;
   updateTask: (id: string, task: TaskType) => void;
-  daysWithTasks: { date: string; tasks: number }[];
+  daysWithTasks: { date: string; tasks: number; mwl: number }[];
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
   generateMentalWorkload: (date: string | undefined) => void;
@@ -128,19 +123,35 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   // ------------------------------------------------------------------------------ //
 
   const generateMentalWorkload = async (date: string | undefined) => {
+    console.log('Generating mental workload for:', date);
     if (!date) return;
     const tasks: TaskType[] = getTasksByDate(new Date(date));
 
     const formatedTasks = tasks.map((task) => {
       return {
         ...task,
-        dueDate: moment(task.dueDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        startDate: moment(task.startDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        endDate: moment(task.endDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
       };
     });
 
-    const insertData = { tasks: JSON.stringify(formatedTasks) };
+    const insertData = {
+      tasks: JSON.stringify(formatedTasks),
+      userId: user?.uid,
+      date,
+    };
     try {
-      await addDoc(collection(db, 'tbl_ai_response'), insertData);
+      // await addDoc(collection(db, 'tbl_ai_response'), insertData);
+      console.log('Data sent to AI model:', insertData);
+      const response = await fetch(
+        'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
+        {
+          body: JSON.stringify(insertData),
+          method: 'POST',
+        }
+      );
+
+      console.log('AI Response:', response.status);
     } catch (error) {
       console.error('Error updating document: ', error);
     }
@@ -151,8 +162,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const getTasksByDate = useCallback(
     (date: Date) => {
       return tasks.filter((task) => {
-        if (!task.dueDate) return false;
-        const dueDate = new Date(task.dueDate.toDate() || '');
+        if (!task.startDate) return false;
+        const dueDate = new Date(task.startDate.toDate() || '');
         return dueDate.toDateString() === date.toDateString();
       });
     },
@@ -161,8 +172,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getTasksByRange = (start: Date, end: Date) => {
     return tasks.filter((task) => {
-      if (!task.dueDate) return false;
-      const dueDate = moment(task.dueDate.toDate());
+      if (!task.startDate) return false;
+      const dueDate = moment(task.startDate.toDate());
       return dueDate.isBetween(moment(start), moment(end), 'days', '[]');
     });
   };
@@ -177,8 +188,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
     return tasks
       .filter((task) => {
-        if (!task.dueDate) return false;
-        const dueDate = new Date(task.dueDate.toDate() || '');
+        if (!task.startDate) return false;
+        const dueDate = new Date(task.startDate.toDate() || '');
         return dueDate >= startOfDay && dueDate <= endOfDay;
       })
       .sort((a, b) => (a.status !== 'done' ? -1 : 1));
@@ -191,9 +202,9 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const daysWithTasks = useMemo(() => {
     const dateCount: Record<string, number> = {};
     const days = tasks.map((task) => {
-      if (!task.dueDate) return '';
-      const dueDate = new Date(task.dueDate.toDate() || '');
-      const formattedDate = dueDate.toLocaleDateString('en-CA', {
+      if (!task.startDate) return '';
+      const startDate = new Date(task.startDate.toDate() || '');
+      const formattedDate = startDate.toLocaleDateString('en-CA', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -206,6 +217,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     return Object.keys(dateCount).map((date) => ({
       date,
       tasks: dateCount[date],
+      mwl: mwlObject.current[date]?.mwl || 0,
     }));
   }, [tasks]);
 

@@ -98,11 +98,11 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name='calendar'
+          name='inbox'
           options={{
-            title: 'Calendar',
+            title: 'Inbox',
             tabBarIcon: ({ color }) => (
-              <TabBarIcon name='calendar' color={color} />
+              <TabBarIcon name='inbox' color={color} />
             ),
           }}
         />
