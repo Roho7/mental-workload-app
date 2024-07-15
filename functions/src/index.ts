@@ -17,8 +17,6 @@ const db = getFirestore();
 export const generateMentalWorkload = functions.https.onRequest(
   async (req, res) => {
     try {
-      functions.logger.info('Generating mental workload for:', req.body);
-
       const { tasks, userId, date, preferences } = JSON.parse(
         req.body
       ) as MentalWorkloadRequestType;
@@ -47,7 +45,6 @@ export const generateMentalWorkload = functions.https.onRequest(
       }
 
       try {
-        functions.logger.info('Updating document:');
         db.collection(`tbl_users/${userId}/mwl`).doc(aiResponse?.date).set({
           mwl: aiResponse?.mwl,
           feedback: aiResponse?.feedback,
