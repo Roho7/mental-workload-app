@@ -8,7 +8,7 @@ export type MentalWorkloadRequestType = {
   userId: string;
   date: string; // DD-MM-YYYY
   preferences: Record<string, any>;
-  isTemporaryFeedback?: boolean;
+  dayFeedback: Record<string, number>;
 };
 
 initializeApp();
@@ -17,9 +17,13 @@ const db = getFirestore();
 export const generateMentalWorkload = functions.https.onRequest(
   async (req, res) => {
     try {
-      const { tasks, userId, date, preferences } = JSON.parse(
-        req.body
-      ) as MentalWorkloadRequestType;
+      const {
+        tasks,
+        userId,
+        date,
+        preferences,
+        dayFeedback,
+      }: MentalWorkloadRequestType = req.body;
 
       const { isTemporaryFeedback } = req.headers;
 
@@ -34,7 +38,7 @@ export const generateMentalWorkload = functions.https.onRequest(
 
       const aiResponse: AIMwlReturnType | null | undefined =
         await getAIMwlRating({
-          raw_data: { tasks, userId, date, preferences },
+          raw_data: { tasks, userId, date, preferences, dayFeedback },
           isTemporaryFeedback: isTemporaryFeedback ? true : false,
         });
 
@@ -43,14 +47,15 @@ export const generateMentalWorkload = functions.https.onRequest(
         functions.logger.error('No AI response received');
         return;
       }
-
-      try {
-        db.collection(`tbl_users/${userId}/mwl`).doc(aiResponse?.date).set({
-          mwl: aiResponse?.mwl,
-          feedback: aiResponse?.feedback,
-        });
-      } catch (error) {
-        functions.logger.error('Error updating document: ', error);
+      if (!isTemporaryFeedback) {
+        try {
+          db.collection(`tbl_users/${userId}/mwl`).doc(aiResponse?.date).set({
+            mwl: aiResponse?.mwl,
+            feedback: aiResponse?.feedback,
+          });
+        } catch (error) {
+          functions.logger.error('Error updating document: ', error);
+        }
       }
 
       res.status(200).send(aiResponse);

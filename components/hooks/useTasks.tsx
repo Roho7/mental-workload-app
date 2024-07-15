@@ -30,7 +30,15 @@ type TaskContextType = {
   daysWithTasks: { date: string; tasks: number; mwl: number }[];
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
-  generateMentalWorkload: (date: string | undefined) => void;
+  generateMentalWorkload: ({
+    dayFeedback,
+    isTemporaryFeedback,
+    date,
+  }: {
+    dayFeedback?: Record<string, number>;
+    isTemporaryFeedback?: boolean;
+    date: moment.Moment | null;
+  }) => Promise<any>;
   fetchTasksAndMwl: () => void;
   mwlObject: React.MutableRefObject<MWLObjectType>;
 };
@@ -38,7 +46,7 @@ type TaskContextType = {
 const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, userPreferences } = useAuth();
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
   const mwlObject = useRef<MWLObjectType>({});
@@ -122,10 +130,19 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //                                 MENTAL WORKLOAD                                //
   // ------------------------------------------------------------------------------ //
 
-  const generateMentalWorkload = async (date: string | undefined) => {
-    console.log('Generating mental workload for:', date);
-    if (!date) return;
-    const tasks: TaskType[] = getTasksByDate(new Date(date));
+  const generateMentalWorkload = async ({
+    dayFeedback,
+    isTemporaryFeedback,
+    date,
+  }: {
+    dayFeedback?: Record<string, number>;
+    isTemporaryFeedback?: boolean;
+    date: moment.Moment | null;
+  }) => {
+    if (!date) {
+      throw new Error('No date provided');
+    }
+    const tasks: TaskType[] = getTasksByDate(new Date(date.toString()));
 
     const formatedTasks = tasks.map((task) => {
       return {
@@ -136,22 +153,26 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     const insertData = {
-      tasks: JSON.stringify(formatedTasks),
+      dayFeedback: dayFeedback,
+      preferences: userPreferences ?? '',
+      tasks: formatedTasks,
       userId: user?.uid,
-      date,
+      date: date.format('DD-MM-YYYY'),
     };
     try {
-      // await addDoc(collection(db, 'tbl_ai_response'), insertData);
-      console.log('Data sent to AI model:', insertData);
       const response = await fetch(
         'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
         {
           body: JSON.stringify(insertData),
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'isTemporaryFeedback': isTemporaryFeedback ? 'true' : 'false',
+          },
         }
       );
 
-      console.log('AI Response:', response.status);
+      return response.json();
     } catch (error) {
       console.error('Error updating document: ', error);
     }
