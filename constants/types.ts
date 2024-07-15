@@ -9,6 +9,7 @@ export type PriorityMapType = {
 export type PriorityValues = 1 | 2 | 3 | 4 | 0;
 
 export type TaskType = {
+  bucket?: string;
   title: string;
   description: string;
   status?: 'done' | 'pending' | 'overdue';
