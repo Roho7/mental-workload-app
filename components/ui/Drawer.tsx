@@ -16,6 +16,7 @@ const Drawer = ({ open, setOpen, children }: Props) => {
       dismissOnSnapToBottom
       zIndex={100_000}
       animation='medium'
+      modal
     >
       <Sheet.Overlay
         animation='lazy'
@@ -23,12 +24,7 @@ const Drawer = ({ open, setOpen, children }: Props) => {
         exitStyle={{ opacity: 0 }}
       />
       <Sheet.Handle />
-      <Sheet.Frame
-        padding='$4'
-        justifyContent='center'
-        alignItems='center'
-        space='$5'
-      >
+      <Sheet.Frame padding='$4' alignItems='center' space='$5'>
         {children}
       </Sheet.Frame>
     </Sheet>

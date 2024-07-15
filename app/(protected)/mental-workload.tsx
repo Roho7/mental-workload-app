@@ -31,7 +31,6 @@ const intervalOptions: intervalTypes[] = ['daily', 'weekly', 'monthly'];
 const MentalWorkloadScreen = () => {
   const {
     todaysTasks,
-    generateMentalWorkload,
     getTasksByDate,
     getTasksByRange,
     mwlObject,
@@ -261,8 +260,8 @@ const MentalWorkloadScreen = () => {
             </YStack>
           )}
         </YStack>
-        <MwlModal open={openMwlModal} setOpen={setOpenMwlModal} />
       </ScrollView>
+      <MwlModal open={openMwlModal} setOpen={setOpenMwlModal} date={date} />
     </SafeAreaView>
   );
 };
