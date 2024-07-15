@@ -203,8 +203,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const dateCount: Record<string, number> = {};
     const days = tasks.map((task) => {
       if (!task.startDate) return '';
-      const startDate = new Date(task.startDate.toDate() || '');
-      const formattedDate = startDate.toLocaleDateString('en-CA', {
+      const dueDate = new Date(task.startDate.toDate() || '');
+      const formattedDate = dueDate.toLocaleDateString('en-CA', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',

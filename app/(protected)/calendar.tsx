@@ -1,5 +1,6 @@
 import { useTasks } from '@/components/hooks/useTasks';
-import TaskCard, { TaskType } from '@/components/ui/TaskCard';
+import TaskCard from '@/components/ui/TaskCard';
+import { TaskType } from '@/constants/types';
 import React, { useState } from 'react';
 import { Calendar, CalendarUtils, DateData } from 'react-native-calendars';
 import { H2, H3, Text, View, YStack } from 'tamagui';
@@ -42,7 +43,7 @@ const CalendarScreen = () => {
 
   return (
     <>
-      <View theme='dark' paddingHorizontal='$2'>
+      <View paddingHorizontal='$2'>
         <H2 marginBottom='$4'>Tasks Calendar</H2>
         <Calendar
           hideExtraDays
