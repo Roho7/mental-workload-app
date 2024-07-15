@@ -1,11 +1,13 @@
 import { useTasks } from '@/components/hooks/useTasks';
 import DateNavigator from '@/components/ui/DateNavigator';
-import { MwlMap } from '@/components/ui/DifficultyBadge';
+import Dropdown from '@/components/ui/Dropdown';
 
 import Graph from '@/components/ui/Graph';
 
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
-import TaskCard, { TaskType } from '@/components/ui/TaskCard';
+import TaskCard from '@/components/ui/TaskCard';
+import { MwlMap } from '@/constants/TaskParameters';
+import { TaskType } from '@/constants/types';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView } from 'react-native';
@@ -112,18 +114,24 @@ const MentalWorkloadScreen = () => {
                   }
                 />
               ) : (
-                <Button
-                  marginBlock='$4'
-                  color='$color'
-                  onPress={() => {
-                    generateMentalWorkload(date?.toISOString());
-                  }}
-                >
-                  Calculate Workload
-                </Button>
+                <Dropdown elements={[]}>
+                  <Button
+                    marginBlock='$4'
+                    color='$color'
+                    onPress={() => generateMentalWorkload(date?.toISOString())}
+                  >
+                    Calculate Workload
+                  </Button>
+                </Dropdown>
               )}
-              <XStack gap='$4' justifyContent='space-between'>
-                <YStack gap='$2' justifyContent='center' alignItems='center'>
+
+              <XStack gap='$4'>
+                <YStack
+                  gap='$2'
+                  justifyContent='center'
+                  alignItems='center'
+                  maxWidth='$8'
+                >
                   <H2>{tasksOnSelectedDay?.length || 0}</H2>
                   <Text color='$gray10'>Tasks Planned</Text>
                 </YStack>
