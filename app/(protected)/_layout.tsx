@@ -6,7 +6,7 @@ import { Link, Redirect, Tabs } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from 'tamagui';
+import { Avatar, Text } from 'tamagui';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(
@@ -15,13 +15,7 @@ function TabBarIcon(
     color: string;
   } & React.ComponentProps<typeof Feather>
 ) {
-  return (
-    <Feather
-      size={28}
-      style={{ marginBottom: -3, color: props.color }}
-      {...props}
-    />
-  );
+  return <Feather size={28} style={{ color: props.color }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -36,12 +30,19 @@ export default function TabLayout() {
     return <Redirect href='/login' />;
   }
   return (
-    <SafeAreaView style={{ flex: 1, flexGrow: 1, backgroundColor: 'black' }}>
+    <SafeAreaView
+      style={{ flex: 1, flexGrow: 1, height: '100%', backgroundColor: 'black' }}
+    >
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
           tabBarShowLabel: false,
+          tabBarStyle: {
+            padding: 10,
+            paddingBottom: 10,
+            height: 60,
+          },
         }}
       >
         <Tabs.Screen
@@ -103,6 +104,21 @@ export default function TabLayout() {
             title: 'Inbox',
             tabBarIcon: ({ color }) => (
               <TabBarIcon name='inbox' color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name='profile'
+          options={{
+            title: 'Profile',
+            tabBarIcon: () => (
+              <Avatar size='$2' circular>
+                <Avatar.Image
+                  accessibilityLabel='Cam'
+                  src={`https://ui-avatars.com/api/?name=${user?.displayName}`}
+                />
+                <Avatar.Fallback backgroundColor='$blue4' />
+              </Avatar>
             ),
           }}
         />
