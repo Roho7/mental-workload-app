@@ -25,12 +25,15 @@ type AuthContextType = {
   signup: (email: string, username: string, password: string) => void;
   logout: () => void;
   setUser: (user: User) => void;
+  userPreferences: any | null;
+  setUserPreferences: (preferences: any) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userPreferences, setUserPreferences] = useState<any | null>(null);
   const toast = useToastController();
 
   const signup = async (email: string, username: string, password: string) => {
@@ -77,13 +80,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      AsyncStorage.getItem('user').then((res) => {
-        if (res !== null) setUser(JSON.parse(res));
-        return;
-      });
+      // Retrieve the user from AsyncStorage
+      const storedUser = await AsyncStorage.getItem('user');
+      const userPreferences = await AsyncStorage.getItem('userPreferences');
+      if (storedUser !== null) {
+        setUser(JSON.parse(storedUser));
+      }
+      if (userPreferences !== null) {
+        setUserPreferences(JSON.parse(userPreferences));
+      }
+
+      // Perform the sign-in
       const res = await signInWithEmailAndPassword(auth, username, password);
       setUser(res.user);
-      AsyncStorage.setItem('user', JSON.stringify(res.user));
+      await AsyncStorage.setItem('user', JSON.stringify(res.user));
+
+      // Check for onboarding data
       const onboardingRef = collection(
         db,
         `tbl_users/${res.user.uid}/preferences`
@@ -92,8 +104,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Navigate based on the existence of onboarding data
       if (onboardingSnapshot.empty) {
+        console.log('No onboarding data found');
         router.replace('/(onboarding)');
       } else {
+        console.log('Onboarding data found');
+        setUserPreferences(onboardingSnapshot.docs[0].data());
         router.replace('/(protected)');
       }
     } catch (error: any) {
@@ -152,6 +167,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signup,
       logout,
       setUser,
+      userPreferences,
+      setUserPreferences,
     }),
     [user]
   );
