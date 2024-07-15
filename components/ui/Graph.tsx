@@ -19,7 +19,7 @@ const chartConfig = {
   color: (opacity = 1) => `rgba(3, 98, 255, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(144, 144, 144, ${opacity})`,
   strokeWidth: 2, // optional, default 3
-  barPercentage: 0.5,
+  barPercentage: 1,
   useShadowColorFromDataset: false, // optional
   propsForDots: {
     r: '2',
@@ -80,7 +80,7 @@ const Graph = ({ interval, date, range }: GraphProps) => {
         height={260}
         yAxisLabel=''
         yAxisSuffix=''
-        yAxisInterval={1} // optional, defaults to 1
+        yAxisInterval={2} // optional, defaults to 1
         chartConfig={chartConfig}
         bezier
       />

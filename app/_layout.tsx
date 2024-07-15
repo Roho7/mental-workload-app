@@ -1,12 +1,13 @@
 import { TaskProvider } from '@/components/hooks/useTasks';
 import tamaguiConfig from '@/tamagui.config';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { ToastProvider, ToastViewport } from '@tamagui/toast';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { EventProvider } from 'react-native-outside-press';
-import { TamaguiProvider, Theme } from 'tamagui';
+import { PortalProvider, TamaguiProvider, Theme } from 'tamagui';
 import { AuthProvider } from '../components/hooks/useAuth';
 export { ErrorBoundary } from 'expo-router';
 
@@ -40,9 +41,12 @@ export default function RootLayout() {
       <TamaguiProvider config={tamaguiConfig}>
         <ThemeProvider value={DarkTheme}>
           <Theme name='dark_blue'>
-            <TaskProvider>
-              <RootLayoutNav />
-            </TaskProvider>
+            <ToastProvider>
+              <TaskProvider>
+                <ToastViewport />
+                <RootLayoutNav />
+              </TaskProvider>
+            </ToastProvider>
           </Theme>
         </ThemeProvider>
       </TamaguiProvider>
@@ -53,7 +57,9 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <EventProvider>
-      <Slot />
+      <PortalProvider shouldAddRootHost>
+        <Slot />
+      </PortalProvider>
     </EventProvider>
   );
 }
