@@ -1,8 +1,8 @@
 import { useTasks } from '@/components/hooks/useTasks';
 import DateNavigator from '@/components/ui/DateNavigator';
-import Dropdown from '@/components/ui/Dropdown';
 
 import Graph from '@/components/ui/Graph';
+import MwlModal from '@/components/ui/mental-workload/MwlModal';
 
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard from '@/components/ui/TaskCard';
@@ -51,8 +51,8 @@ const MentalWorkloadScreen = () => {
     TaskType[] | null
   >(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
-
   const [refreshing, setRefreshing] = useState(false);
+  const [openMwlModal, setOpenMwlModal] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -114,15 +114,13 @@ const MentalWorkloadScreen = () => {
                   }
                 />
               ) : (
-                <Dropdown elements={[]}>
-                  <Button
-                    marginBlock='$4'
-                    color='$color'
-                    onPress={() => generateMentalWorkload(date?.toISOString())}
-                  >
-                    Calculate Workload
-                  </Button>
-                </Dropdown>
+                <Button
+                  marginBlock='$4'
+                  color='$color'
+                  onPress={() => setOpenMwlModal(true)}
+                >
+                  Calculate Workload
+                </Button>
               )}
 
               <XStack gap='$4'>
@@ -237,6 +235,7 @@ const MentalWorkloadScreen = () => {
             </YStack>
           )}
         </YStack>
+        <MwlModal open={openMwlModal} setOpen={setOpenMwlModal} />
       </ScrollView>
     </SafeAreaView>
   );
