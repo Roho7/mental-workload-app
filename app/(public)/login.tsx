@@ -1,5 +1,4 @@
 import { useAuth } from '@/components/hooks/useAuth';
-import { useToastController } from '@tamagui/toast';
 import { Link, Redirect } from 'expo-router';
 import React, { useState } from 'react';
 
@@ -12,11 +11,13 @@ const LoginPage = (props: Props) => {
   const { login, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const toast = useToastController();
 
   const handleSignIn = () => {
     login(email, password);
   };
+
+  const isUserOnboadingDone = () => {};
+
   if (user) {
     return <Redirect href='/(protected)' />;
   }

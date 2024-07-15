@@ -1,20 +1,21 @@
 import { useAuth } from '@/components/hooks/useAuth';
 import { useTasks } from '@/components/hooks/useTasks';
-import Dropdown from '@/components/ui/Dropdown';
 import TaskCard from '@/components/ui/TaskCard';
+import { Feather } from '@expo/vector-icons';
+import { useToastController } from '@tamagui/toast';
+import { router } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import {
   RefreshControl,
   SafeAreaView,
   useWindowDimensions,
+  Vibration,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import {
-  Avatar,
   Button,
   H1,
   H2,
-  H4,
   ScrollView,
   Text,
   View,
@@ -32,11 +33,16 @@ export default function TabOneScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { logout, user } = useAuth();
   const { todaysTasks, fetchTasksAndMwl } = useTasks();
+  const toast = useToastController();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchTasksAndMwl();
     setRefreshing(false);
+    Vibration.vibrate(10);
+    toast.show('Refreshed!', {
+      native: true,
+    });
   }, [fetchTasksAndMwl]);
 
   return (
@@ -52,33 +58,9 @@ export default function TabOneScreen() {
         }
       >
         <YStack gap='$4' flex={1}>
+          <H1>Hi {user?.displayName || 'user'}!</H1>
+
           <View>
-            <XStack justifyContent='space-between' alignItems='center'>
-              <H1>Hi {user?.displayName || 'user'}</H1>
-              <Dropdown
-                action={() => {}}
-                elements={[
-                  <Button size='$5' onPress={logout}>
-                    <XStack gap='$3'>
-                      <Text>Logout</Text>
-                    </XStack>
-                  </Button>,
-                ]}
-              >
-                <Avatar size='$3' circular>
-                  <Avatar.Image
-                    accessibilityLabel='Cam'
-                    src={`https://ui-avatars.com/api/?name=${user?.displayName}`}
-                  />
-                  <Avatar.Fallback backgroundColor='$blue4' />
-                </Avatar>
-              </Dropdown>
-            </XStack>
-            <H4 color='$accentBackground'>
-              You have {todaysTasks.length} tasks remaining today
-            </H4>
-          </View>
-          <View flex={1}>
             <Carousel
               loop={false}
               width={width}
@@ -113,7 +95,7 @@ export default function TabOneScreen() {
                   key={index}
                   borderRadius={10}
                   backgroundColor={
-                    index === activeCardIndex ? '#007aff' : '#gray'
+                    index === activeCardIndex ? '#007aff' : 'gray'
                   }
                   height={4}
                   width={4}
@@ -128,9 +110,17 @@ export default function TabOneScreen() {
                 <TaskCard task={task} key={index} />
               ))
             ) : (
-              <View paddingVertical='$2'>
+              <YStack paddingVertical='$2' gap='$2'>
                 <Text color='$gray10'>No tasks for today 🕸</Text>
-              </View>
+                <Button
+                  onPress={() => {
+                    router.push('/add-task');
+                  }}
+                  icon={<Feather name='plus' color='white' />}
+                >
+                  Add Tasks
+                </Button>
+              </YStack>
             )}
           </View>
           {/* <View>
