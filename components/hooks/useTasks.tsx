@@ -17,7 +17,8 @@ import {
   useState,
   useTransition,
 } from 'react';
-import { TaskType } from '../ui/TaskCard';
+
+import { TaskType } from '@/constants/types';
 import { useAuth } from './useAuth';
 
 export type MWLObjectType = {
@@ -134,7 +135,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const formatedTasks = tasks.map((task) => {
       return {
         ...task,
-        dueDate: moment(task.dueDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        dueDate: moment(task.startDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
       };
     });
 
@@ -151,8 +152,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const getTasksByDate = useCallback(
     (date: Date) => {
       return tasks.filter((task) => {
-        if (!task.dueDate) return false;
-        const dueDate = new Date(task.dueDate.toDate() || '');
+        if (!task.startDate) return false;
+        const dueDate = new Date(task.startDate.toDate() || '');
         return dueDate.toDateString() === date.toDateString();
       });
     },
@@ -161,8 +162,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getTasksByRange = (start: Date, end: Date) => {
     return tasks.filter((task) => {
-      if (!task.dueDate) return false;
-      const dueDate = moment(task.dueDate.toDate());
+      if (!task.startDate) return false;
+      const dueDate = moment(task.startDate.toDate());
       return dueDate.isBetween(moment(start), moment(end), 'days', '[]');
     });
   };
@@ -177,8 +178,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
     return tasks
       .filter((task) => {
-        if (!task.dueDate) return false;
-        const dueDate = new Date(task.dueDate.toDate() || '');
+        if (!task.startDate) return false;
+        const dueDate = new Date(task.startDate.toDate() || '');
         return dueDate >= startOfDay && dueDate <= endOfDay;
       })
       .sort((a, b) => (a.status !== 'done' ? -1 : 1));
@@ -191,8 +192,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const daysWithTasks = useMemo(() => {
     const dateCount: Record<string, number> = {};
     const days = tasks.map((task) => {
-      if (!task.dueDate) return '';
-      const dueDate = new Date(task.dueDate.toDate() || '');
+      if (!task.startDate) return '';
+      const dueDate = new Date(task.startDate.toDate() || '');
       const formattedDate = dueDate.toLocaleDateString('en-CA', {
         year: 'numeric',
         month: '2-digit',
@@ -206,6 +207,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     return Object.keys(dateCount).map((date) => ({
       date,
       tasks: dateCount[date],
+      mwl: mwlObject.current[date]?.mwl || 0,
     }));
   }, [tasks]);
 
