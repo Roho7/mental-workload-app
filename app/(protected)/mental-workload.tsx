@@ -78,7 +78,7 @@ const MentalWorkloadScreen = () => {
     } else {
       setTasksOnSelectedDay(getTasksByDate(date.toDate()));
     }
-  }, [date, selectedInterval]);
+  }, [date, selectedInterval, fetchTasksAndMwl]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

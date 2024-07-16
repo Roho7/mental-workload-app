@@ -4,7 +4,7 @@ import * as functions from 'firebase-functions';
 import { AIMwlReturnType, getAIMwlRating } from './ai';
 
 export type MentalWorkloadRequestType = {
-  tasks: string;
+  tasks: Record<string, any>[];
   userId: string;
   date: string; // DD-MM-YYYY
   preferences: Record<string, any>;
@@ -25,7 +25,7 @@ export const generateMentalWorkload = functions.https.onRequest(
         dayFeedback,
       }: MentalWorkloadRequestType = req.body;
 
-      const { isTemporaryFeedback } = req.headers;
+      const { 'is-temporary': isTemporary } = req.headers;
 
       if (!tasks) {
         res.status(400).send('Missing required fields in request body');
@@ -39,7 +39,7 @@ export const generateMentalWorkload = functions.https.onRequest(
       const aiResponse: AIMwlReturnType | null | undefined =
         await getAIMwlRating({
           raw_data: { tasks, userId, date, preferences, dayFeedback },
-          isTemporaryFeedback: isTemporaryFeedback ? true : false,
+          isTemporary: isTemporary === 'true' ? true : false,
         });
 
       if (!aiResponse) {
@@ -47,7 +47,8 @@ export const generateMentalWorkload = functions.https.onRequest(
         functions.logger.error('No AI response received');
         return;
       }
-      if (!isTemporaryFeedback) {
+
+      if (isTemporary === 'false') {
         try {
           db.collection(`tbl_users/${userId}/mwl`).doc(aiResponse?.date).set({
             mwl: aiResponse?.mwl,
