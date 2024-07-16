@@ -95,22 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(res.user);
       await AsyncStorage.setItem('user', JSON.stringify(res.user));
 
-      // Check for onboarding data
-      const onboardingRef = collection(
-        db,
-        `tbl_users/${res.user.uid}/preferences`
-      );
-      const onboardingSnapshot = await getDocs(onboardingRef);
-
-      // Navigate based on the existence of onboarding data
-      if (onboardingSnapshot.empty) {
-        console.log('No onboarding data found');
-        router.replace('/(onboarding)');
-      } else {
-        console.log('Onboarding data found');
-        setUserPreferences(onboardingSnapshot.docs[0].data());
-        router.replace('/(protected)');
-      }
+      router.replace('/(protected)');
     } catch (error: any) {
       if (error.code) {
         switch (error.code) {
@@ -152,6 +137,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (userData) {
           setUser(JSON.parse(userData));
         }
+        const onboardingRef = collection(
+          db,
+          `tbl_users/${user?.uid}/preferences`
+        );
+        const onboardingSnapshot = await getDocs(onboardingRef);
+
+        setUserPreferences(onboardingSnapshot.docs[0].data());
+
+        await AsyncStorage.setItem(
+          'userPreferences',
+          JSON.stringify(onboardingSnapshot.docs[0].data())
+        );
+
+        setUserPreferences(onboardingSnapshot.docs[0].data());
+        router.replace('/(protected)');
       } catch (error) {
         console.error('Failed to load user data from AsyncStorage', error);
       }
