@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import { TaskType } from '@/constants/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './useAuth';
 
 export type MWLObjectType = {
@@ -46,7 +47,7 @@ type TaskContextType = {
 const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, userPreferences } = useAuth();
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
   const mwlObject = useRef<MWLObjectType>({});
@@ -74,14 +75,14 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Process tasks
       const tasks = taskSnapshot.docs.map((doc) => doc.data());
-      console.log('Fetched tasks:', tasks); // Log fetched tasks
+      // console.log('Fetched tasks:', tasks); // Log fetched tasks
 
       // Process MWL data
       const mwl = mwlSnapshot.docs.reduce((acc: Record<string, any>, doc) => {
         acc[doc.id] = doc.data();
         return acc;
       }, {});
-      console.log('Fetched MWL:', mwl); // Log fetched MWL
+      // console.log('Fetched MWL:', mwl); // Log fetched MWL
 
       // Update state for both tasks and MWL
       setTasks(tasks as TaskType[]);
@@ -132,7 +133,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   const generateMentalWorkload = async ({
     dayFeedback,
-    isTemporaryFeedback,
+    isTemporaryFeedback = false,
     date,
   }: {
     dayFeedback?: Record<string, number>;
@@ -152,6 +153,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       };
     });
 
+    const userPreferences = await AsyncStorage.getItem('userPreferences');
+
     const insertData = {
       dayFeedback: dayFeedback,
       preferences: userPreferences ?? '',
@@ -161,17 +164,19 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     };
     try {
       const response = await fetch(
-        'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
+        // 'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
+        'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
         {
           body: JSON.stringify(insertData),
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'isTemporaryFeedback': isTemporaryFeedback ? 'true' : 'false',
+            'is-temporary': isTemporaryFeedback ? 'true' : 'false',
+            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_GCLOUD_TOKEN}`,
           },
         }
       );
-
+      console.log('Response:', response);
       return response.json();
     } catch (error) {
       console.error('Error updating document: ', error);

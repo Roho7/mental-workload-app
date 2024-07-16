@@ -11,7 +11,7 @@ import { PriorityValues, TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { Vibration } from 'react-native';
@@ -47,9 +47,7 @@ const AddTask = ({}) => {
       taskId: uuid.v4().toString(),
     };
 
-    const taskRef = collection(db, `tbl_users/${user.uid}/tasks`);
-
-    await addDoc(taskRef, {
+    await setDoc(doc(db, `tbl_users/${user.uid}/tasks`, insertData.taskId), {
       ...insertData,
       userId: user.uid,
     });
