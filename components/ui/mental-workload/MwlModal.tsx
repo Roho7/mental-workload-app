@@ -1,7 +1,8 @@
 import { useTasks } from '@/components/hooks/useTasks';
+import { AIMwlReturnType } from '@/functions/src/ai';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { Button, H4, H5, Text, XStack, YStack } from 'tamagui';
+import { Button, H2, H4, H5, Text, XStack, YStack } from 'tamagui';
 import Drawer from '../Drawer';
 
 const MwlQuestionnaire: Record<number, any> = {
@@ -55,7 +56,7 @@ const MwlModal = ({
     frustrationLevel: 0,
     satisfactionLevel: 0,
   });
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState<AIMwlReturnType | null>(null);
 
   const reset = () => {
     setOpen(false);
@@ -92,11 +93,10 @@ const MwlModal = ({
                     isTemporaryFeedback: true,
                     date: date,
                   });
-                  console.log(feedback, 'feedback');
                   setFeedback(feedback);
                   setIsFeedbackScreen(true);
                 } catch (e) {
-                  console.log(e);
+                  console.log('Error generating feedback', e);
                 }
               }}
               backgroundColor='$accentColor'
@@ -152,13 +152,17 @@ const MwlModal = ({
                 </Button>
               )}
               <Button
-                onPress={() => {
+                onPress={async () => {
                   if (currentQuestion === 5) {
-                    generateMentalWorkload({
-                      dayFeedback: questionnaireData,
-                      date: date,
-                    });
-                    reset();
+                    try {
+                      await generateMentalWorkload({
+                        dayFeedback: questionnaireData,
+                        date: date,
+                      });
+                      reset();
+                    } catch (e) {
+                      console.log(e);
+                    }
                   } else {
                     setCurrentQuestion(currentQuestion + 1);
                   }
@@ -169,7 +173,13 @@ const MwlModal = ({
             </XStack>
           </>
         )}
-        {isFeedbackScreen && <Text>{JSON.stringify(feedback)}</Text>}
+        {isFeedbackScreen && (
+          <YStack justifyContent='center' alignItems='center' gap='$2'>
+            <H2>{feedback?.mwl}</H2>
+            <Text color='$gray10'>Current Estimated Workload</Text>
+            <Text textAlign='center'>{feedback?.feedback}</Text>
+          </YStack>
+        )}
       </YStack>
     </Drawer>
   );
