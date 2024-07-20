@@ -1,41 +1,102 @@
 import { initializeApp } from 'firebase-admin/app';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import * as functions from 'firebase-functions';
-type MentalWorkloadType = {
-  tasks: string;
+import { AIMwlReturnType, getAIMwlRating } from './ai';
+
+export type MentalWorkloadRequestType = {
+  tasks: Record<string, any>[];
   userId: string;
-  mwl: number;
-  date: Timestamp;
-  status: Record<string, any>;
-  response: string;
+  date: string; // DD-MM-YYYY
+  preferences: Record<string, any>;
+  dayFeedback: Record<string, number>;
 };
 
 initializeApp();
 const db = getFirestore();
-export const createMentalWorkload = functions.firestore
-  .document('tbl_ai_response/{id}')
-  .onUpdate(async (handler) => {
-    const data = handler.after.data() as MentalWorkloadType;
-    const parsedData = JSON.parse(data.response);
-    const { userId, date, mwl, feedback } = parsedData;
 
-    if (!userId || !date || mwl === undefined || !feedback) {
-      console.error('Missing required fields in parsedData:', parsedData);
-      return;
-    }
-
-    const userMwlRef = db.doc(`tbl_users/${userId}/mwl/${date}`);
-
+export const generateMentalWorkload = functions.https.onRequest(
+  async (req, res) => {
     try {
-      await userMwlRef.set(
-        {
-          mwl,
-          feedback,
-        },
-        { merge: true }
-      );
-      console.log(`Successfully updated tbl_users/${userId}/mwl/${date}`);
+      const {
+        tasks,
+        userId,
+        date,
+        preferences,
+        dayFeedback,
+      }: MentalWorkloadRequestType = req.body;
+
+      const { 'is-temporary': isTemporary } = req.headers;
+
+      if (!tasks) {
+        res.status(400).send('Missing required fields in request body');
+        functions.logger.error(
+          'Missing required fields in request body:',
+          req.body
+        );
+        return;
+      }
+
+      const aiResponse: AIMwlReturnType | null | undefined =
+        await getAIMwlRating({
+          raw_data: { tasks, userId, date, preferences, dayFeedback },
+          isTemporary: isTemporary === 'true' ? true : false,
+        });
+
+      if (!aiResponse) {
+        res.status(500).send('AI response not received');
+        functions.logger.error('No AI response received');
+        return;
+      }
+
+      if (isTemporary === 'false') {
+        try {
+          db.collection(`tbl_users/${userId}/mwl`).doc(aiResponse?.date).set({
+            mwl: aiResponse?.mwl,
+            feedback: aiResponse?.feedback,
+          });
+        } catch (error) {
+          functions.logger.error('Error updating document: ', error);
+        }
+      }
+
+      res.status(200).send(aiResponse);
     } catch (error) {
-      console.error(`Failed to update tbl_users/${userId}/mwl/${date}:`, error);
+      functions.logger.error('Error generating mental workload:', error);
+      res.status(500).send('Internal server error');
     }
-  });
+  }
+);
+
+// SENDS THE DATA TO THE USER'S MWL COLLECTION WHEN THE AI RESPONSE IS RECEIVED
+// export const inputMentalWorkload = functions.firestore
+//   .document('tbl_ai_response/{id}')
+//   .onUpdate(async (handler) => {
+//     const data = handler.after.data() as MentalWorkloadPayloadType;
+//     const parsedData = JSON.parse(data.response);
+//     const { userId, date, mwl, feedback } = parsedData;
+
+//     if (!userId || !date || mwl === undefined || !feedback) {
+//       console.error('Missing required fields in parsedData:', parsedData);
+//       return;
+//     }
+
+//     const userMwlRef = db.doc(`tbl_users/${userId}/mwl/${date}`);
+
+//     try {
+//       await userMwlRef.set(
+//         {
+//           mwl,
+//           feedback,
+//         },
+//         { merge: true }
+//       );
+//       functions.logger.info(
+//         `Successfully updated tbl_users/${userId}/mwl/${date}`
+//       );
+//     } catch (error) {
+//       functions.logger.error(
+//         `Failed to update tbl_users/${userId}/mwl/${date}:`,
+//         error
+//       );
+//     }
+//   });

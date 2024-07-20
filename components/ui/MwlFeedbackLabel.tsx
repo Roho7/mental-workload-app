@@ -1,6 +1,6 @@
+import { MwlMap } from '@/constants/TaskParameters';
 import React from 'react';
 import { Text, View } from 'tamagui';
-import { MwlMap } from './DifficultyBadge';
 
 const MwlFeedbackLabel = ({ mwl }: { mwl: 1 | 2 | 3 | 4 | 5 }) => {
   return (

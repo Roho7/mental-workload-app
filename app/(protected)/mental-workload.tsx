@@ -2,6 +2,7 @@ import { useTasks } from '@/components/hooks/useTasks';
 import DateNavigator from '@/components/ui/DateNavigator';
 
 import Graph from '@/components/ui/Graph';
+import MwlModal from '@/components/ui/mental-workload/MwlModal';
 
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard from '@/components/ui/TaskCard';
@@ -30,7 +31,6 @@ const intervalOptions: intervalTypes[] = ['daily', 'weekly', 'monthly'];
 const MentalWorkloadScreen = () => {
   const {
     todaysTasks,
-    generateMentalWorkload,
     getTasksByDate,
     getTasksByRange,
     mwlObject,
@@ -53,6 +53,7 @@ const MentalWorkloadScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const toast = useToastController();
+  const [openMwlModal, setOpenMwlModal] = useState(false);
 
   const onRefresh = useCallback(() => {
     Vibration.vibrate(10);
@@ -77,7 +78,7 @@ const MentalWorkloadScreen = () => {
     } else {
       setTasksOnSelectedDay(getTasksByDate(date.toDate()));
     }
-  }, [date, selectedInterval]);
+  }, [date, selectedInterval, fetchTasksAndMwl]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -121,9 +122,7 @@ const MentalWorkloadScreen = () => {
                 <Button
                   marginBlock='$4'
                   color='$color'
-                  onPress={() => {
-                    generateMentalWorkload(date?.toISOString());
-                  }}
+                  onPress={() => setOpenMwlModal(true)}
                 >
                   Calculate Workload
                 </Button>
@@ -262,6 +261,7 @@ const MentalWorkloadScreen = () => {
           )}
         </YStack>
       </ScrollView>
+      <MwlModal open={openMwlModal} setOpen={setOpenMwlModal} date={date} />
     </SafeAreaView>
   );
 };
