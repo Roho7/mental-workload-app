@@ -26,6 +26,8 @@ module.exports = {
     'import/no-unresolved': 0,
     'indent': ['error', 2],
     'quotes': ['off', 'double'],
+    'max-len': 'off',
+    'camelcase': 'off',
     'object-curly-spacing': ['off', 'never'],
   },
 };
