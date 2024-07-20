@@ -1,5 +1,7 @@
 import { auth, db } from '@/utils/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import gAuth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
 import {
@@ -19,10 +21,15 @@ import React, {
   useState,
 } from 'react';
 
+GoogleSignin.configure({
+  webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+});
+
 type AuthContextType = {
   user: User | null;
   login: (username: string, password: string) => void;
   signup: (email: string, username: string, password: string) => void;
+  signInWithGoogle: () => void;
   logout: () => void;
   setUser: (user: User) => void;
   userPreferences: any | null;
@@ -127,6 +134,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  async function signInWithGoogle() {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const { idToken } = await GoogleSignin.signIn();
+      const googleCredential = gAuth.GoogleAuthProvider.credential(idToken);
+      await gAuth().signInWithCredential(googleCredential);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const logout = () => {
     AsyncStorage.setItem('user', '');
     signOut(auth);
@@ -168,6 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       login,
       signup,
+      signInWithGoogle,
       logout,
       setUser,
       userPreferences,
