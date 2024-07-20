@@ -25,12 +25,15 @@ type AuthContextType = {
   signup: (email: string, username: string, password: string) => void;
   logout: () => void;
   setUser: (user: User) => void;
+  userPreferences: any | null;
+  setUserPreferences: (preferences: any) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userPreferences, setUserPreferences] = useState<any | null>(null);
   const toast = useToastController();
 
   const signup = async (email: string, username: string, password: string) => {
@@ -46,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       setUser(new_user.user);
-      router.replace('/(onboarding)');
+      await AsyncStorage.setItem('user', JSON.stringify(new_user.user));
     } catch (error: any) {
       if (error.code) {
         switch (error.code) {
@@ -56,46 +59,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           case 'auth/user-disabled':
             alert('User account is disabled.');
             throw new Error('User account is disabled.');
-          case 'auth/user-not-found':
-            alert('User not found. Please check your email and password.');
-            throw new Error(
-              'User not found. Please check your email and password.'
+          case 'auth/invalid-password':
+            alert(
+              'Invalid password. Password should be at least 6 characters.'
             );
-          case 'auth/wrong-password':
-            alert('Incorrect password. Please try again.');
-            throw new Error('Incorrect password. Please try again.');
+            throw new Error('Invalid password. Please try again.');
           default:
-            alert('Failed to login User. Please try again later.');
-            throw new Error('Failed to login User. Please try again later.');
+            alert('Failed to create account. Please try again later.');
+            console.log(error);
+            throw new Error(
+              'Failed to create account. Please try again later.',
+              error
+            );
         }
       } else {
         alert('An unexpected error occurred.');
         throw new Error('An unexpected error occurred.');
       }
+    } finally {
+      router.replace('/(onboarding)');
     }
   };
 
   const login = async (username: string, password: string) => {
     try {
-      AsyncStorage.getItem('user').then((res) => {
-        if (res !== null) setUser(JSON.parse(res));
-        return;
-      });
+      // Retrieve the user from AsyncStorage
+      const storedUser = await AsyncStorage.getItem('user');
+      const userPreferences = await AsyncStorage.getItem('userPreferences');
+      if (storedUser !== null) {
+        setUser(JSON.parse(storedUser));
+      }
+      if (userPreferences !== null) {
+        setUserPreferences(JSON.parse(userPreferences));
+      }
+
+      // Perform the sign-in
       const res = await signInWithEmailAndPassword(auth, username, password);
       setUser(res.user);
-      AsyncStorage.setItem('user', JSON.stringify(res.user));
-      const onboardingRef = collection(
-        db,
-        `tbl_users/${res.user.uid}/preferences`
-      );
-      const onboardingSnapshot = await getDocs(onboardingRef);
+      await AsyncStorage.setItem('user', JSON.stringify(res.user));
 
-      // Navigate based on the existence of onboarding data
-      if (onboardingSnapshot.empty) {
-        router.replace('/(onboarding)');
-      } else {
-        router.replace('/(protected)');
-      }
+      router.replace('/(protected)');
     } catch (error: any) {
       if (error.code) {
         switch (error.code) {
@@ -137,6 +140,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (userData) {
           setUser(JSON.parse(userData));
         }
+        const onboardingRef = collection(
+          db,
+          `tbl_users/${user?.uid}/preferences`
+        );
+        const onboardingSnapshot = await getDocs(onboardingRef);
+
+        setUserPreferences(onboardingSnapshot.docs[0].data());
+
+        await AsyncStorage.setItem(
+          'userPreferences',
+          JSON.stringify(onboardingSnapshot.docs[0].data())
+        );
+
+        setUserPreferences(onboardingSnapshot.docs[0].data());
+        router.replace('/(protected)');
       } catch (error) {
         console.error('Failed to load user data from AsyncStorage', error);
       }
@@ -152,6 +170,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signup,
       logout,
       setUser,
+      userPreferences,
+      setUserPreferences,
     }),
     [user]
   );

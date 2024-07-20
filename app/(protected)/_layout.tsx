@@ -2,6 +2,7 @@ import { useAuth } from '@/components/hooks/useAuth';
 import Colors from '@/constants/Colors';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, Redirect, Tabs } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
@@ -17,17 +18,20 @@ function TabBarIcon(
 ) {
   return <Feather size={28} style={{ color: props.color }} {...props} />;
 }
+const preferences = AsyncStorage.getItem('userPreferences');
 
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(false);
   const colorScheme = useColorScheme();
   const { user } = useAuth();
-
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
   if (!user) {
     return <Redirect href='/login' />;
+  }
+  if (!preferences) {
+    return <Redirect href='/(onboarding)' />;
   }
   return (
     <SafeAreaView
@@ -99,11 +103,11 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name='calendar'
+          name='inbox'
           options={{
-            title: 'Calendar',
+            title: 'Inbox',
             tabBarIcon: ({ color }) => (
-              <TabBarIcon name='calendar' color={color} />
+              <TabBarIcon name='inbox' color={color} />
             ),
           }}
         />

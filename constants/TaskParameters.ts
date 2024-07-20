@@ -1,3 +1,4 @@
+import { MwlType } from '@/components/ui/DifficultyBadge';
 import { PriorityMapType } from './types';
 
 export const PriorityMap: Record<number, PriorityMapType> = {
@@ -25,5 +26,43 @@ export const PriorityMap: Record<number, PriorityMapType> = {
     color: '$gray10',
     text: 'No Priority',
     icon: 'minus',
+  },
+};
+
+export const MwlMap: Record<number, MwlType> = {
+  5: {
+    color: '#DA7979',
+    text: 'Overload',
+    icon: 'brain',
+    iconColor: '#DC2626',
+    feedbackText: 'Overload!',
+  },
+  4: {
+    color: '#CCC46C',
+    text: 'High Load',
+    icon: 'brain',
+    iconColor: '#FB7185',
+    feedbackText: 'One of those tough days',
+  },
+  3: {
+    color: '#34C51E',
+    text: 'Medium Load',
+    icon: 'brain',
+    iconColor: '#F59E0B',
+    feedbackText: 'Perfect balance',
+  },
+  2: {
+    color: '#61B6DC',
+    text: 'Light Load',
+    icon: 'brain',
+    iconColor: '#34D399',
+    feedbackText: 'Breezier than usual',
+  },
+  1: {
+    color: '#9E81DD',
+    text: 'No Load',
+    icon: 'brain',
+    iconColor: '#BEF264',
+    feedbackText: 'Not enough challenge',
   },
 };

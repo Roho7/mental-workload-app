@@ -48,7 +48,6 @@ const TaskCard = ({ task }: { task: TaskType }) => {
           borderWidth='$0.25'
           marginBlock='$2'
         >
-          {task.bucket && <Text color='$placeholderColor'>{task.bucket}</Text>}
           <XStack alignItems='center' justifyContent='space-between'>
             <H4 color={task.status === 'done' ? 'gray' : '$color'}>
               {task.title}
