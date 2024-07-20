@@ -12,7 +12,7 @@ import { AuthProvider } from '../components/hooks/useAuth';
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(tabs)',
+  initialRouteName: '(public)/login',
 };
 
 SplashScreen.preventAutoHideAsync();
