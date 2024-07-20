@@ -11,6 +11,8 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "fb:serve": "cd ./functions && yarn serve",
+    "fb:watch": "cd ./functions && yarn build:watch",
+    "fb:deploy": "cd ./functions && yarn deploy",
     "eas:build:android": "eas build --platform android --profile development"
   },
   "jest": {

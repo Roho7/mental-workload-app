@@ -1,11 +1,5 @@
 import { db } from '@/utils/firebase';
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  updateDoc,
-} from 'firebase/firestore';
+import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 import moment from 'moment';
 import {
   createContext,
@@ -19,6 +13,7 @@ import {
 } from 'react';
 
 import { TaskType } from '@/constants/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './useAuth';
 
 export type MWLObjectType = {
@@ -33,10 +28,18 @@ type TaskContextType = {
   addTask: (task: TaskType) => void;
   removeTask: (id: string) => void;
   updateTask: (id: string, task: TaskType) => void;
-  daysWithTasks: { date: string; tasks: number }[];
+  daysWithTasks: { date: string; tasks: number; mwl: number }[];
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
-  generateMentalWorkload: (date: string | undefined) => void;
+  generateMentalWorkload: ({
+    dayFeedback,
+    isTemporaryFeedback,
+    date,
+  }: {
+    dayFeedback?: Record<string, number>;
+    isTemporaryFeedback?: boolean;
+    date: moment.Moment | null;
+  }) => Promise<any>;
   fetchTasksAndMwl: () => void;
   mwlObject: React.MutableRefObject<MWLObjectType>;
 };
@@ -72,14 +75,14 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Process tasks
       const tasks = taskSnapshot.docs.map((doc) => doc.data());
-      console.log('Fetched tasks:', tasks); // Log fetched tasks
+      // console.log('Fetched tasks:', tasks); // Log fetched tasks
 
       // Process MWL data
       const mwl = mwlSnapshot.docs.reduce((acc: Record<string, any>, doc) => {
         acc[doc.id] = doc.data();
         return acc;
       }, {});
-      console.log('Fetched MWL:', mwl); // Log fetched MWL
+      // console.log('Fetched MWL:', mwl); // Log fetched MWL
 
       // Update state for both tasks and MWL
       setTasks(tasks as TaskType[]);
@@ -128,20 +131,53 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   //                                 MENTAL WORKLOAD                                //
   // ------------------------------------------------------------------------------ //
 
-  const generateMentalWorkload = async (date: string | undefined) => {
-    if (!date) return;
-    const tasks: TaskType[] = getTasksByDate(new Date(date));
+  const generateMentalWorkload = async ({
+    dayFeedback,
+    isTemporaryFeedback = false,
+    date,
+  }: {
+    dayFeedback?: Record<string, number>;
+    isTemporaryFeedback?: boolean;
+    date: moment.Moment | null;
+  }) => {
+    if (!date) {
+      throw new Error('No date provided');
+    }
+    const tasks: TaskType[] = getTasksByDate(new Date(date.toString()));
 
     const formatedTasks = tasks.map((task) => {
       return {
         ...task,
-        dueDate: moment(task.startDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        startDate: moment(task.startDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        endDate: moment(task.endDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
       };
     });
 
-    const insertData = { tasks: JSON.stringify(formatedTasks) };
+    const userPreferences = await AsyncStorage.getItem('userPreferences');
+
+    const insertData = {
+      dayFeedback: dayFeedback,
+      preferences: userPreferences ?? '',
+      tasks: formatedTasks,
+      userId: user?.uid,
+      date: date.format('DD-MM-YYYY'),
+    };
     try {
-      await addDoc(collection(db, 'tbl_ai_response'), insertData);
+      const response = await fetch(
+        // 'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
+        'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
+        {
+          body: JSON.stringify(insertData),
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'is-temporary': isTemporaryFeedback ? 'true' : 'false',
+            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_GCLOUD_TOKEN}`,
+          },
+        }
+      );
+      console.log('Response:', response);
+      return response.json();
     } catch (error) {
       console.error('Error updating document: ', error);
     }
