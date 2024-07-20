@@ -1,4 +1,5 @@
 import { useAuth } from '@/components/hooks/useAuth';
+import { useTasks } from '@/components/hooks/useTasks';
 import DateTimePicker from '@/components/ui/DateTimePicker';
 import DifficultyBadge, {
   DifficultyMap,
@@ -21,12 +22,12 @@ import { Button, H2, Input, Text, TextArea, XStack, YStack } from 'tamagui';
 
 const AddTask = ({}) => {
   const { user } = useAuth();
+  const { fetchTasksAndMwl } = useTasks();
   const toast = useToastController();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<PriorityValues>(0);
   const [mwl, setMwl] = useState(1);
-
   const [startDate, setStartDate] = useState<Timestamp | null>(Timestamp.now());
   const [endDate, setEndDate] = useState<Timestamp | null>(
     Timestamp.fromDate(moment(Timestamp.now().toDate()).add(1, 'hour').toDate())
@@ -57,8 +58,32 @@ const AddTask = ({}) => {
       native: true,
     });
     reset();
+    fetchTasksAndMwl();
     router.back();
   };
+
+  const bulkAddTasks = async (tasks: Array<TaskType>) => {
+    if (!user) {
+      return;
+    }
+
+    tasks.forEach(async (task) => {
+      const insertData: TaskType = {
+        ...task,
+        userId: user.uid,
+        taskId: uuid.v4().toString(),
+      };
+
+      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, insertData.taskId);
+      await setDoc(taskRef, insertData);
+    });
+
+    toast.show('Tasks added!', {
+      native: true,
+    });
+    router.back();
+  };
+
   const reset = () => {
     setTitle('');
     setDescription('');
@@ -67,6 +92,7 @@ const AddTask = ({}) => {
     setStartDate(null);
     setEndDate(null);
   };
+
   return (
     <YStack gap='$4' paddingInline='$2'>
       <XStack alignItems='center' gap='$4'>
@@ -155,6 +181,14 @@ const AddTask = ({}) => {
       >
         Save
       </Button>
+      {/* <Button
+        theme='green'
+        borderWidth='$0.25'
+        borderColor='green'
+        onPress={() => bulkAddTasks(tasksDemo)}
+      >
+        Bulk Add
+      </Button> */}
     </YStack>
   );
 };

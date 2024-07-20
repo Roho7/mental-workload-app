@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       setUser(new_user.user);
-      router.replace('/(onboarding)');
+      await AsyncStorage.setItem('user', JSON.stringify(new_user.user));
     } catch (error: any) {
       if (error.code) {
         switch (error.code) {
@@ -59,22 +59,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           case 'auth/user-disabled':
             alert('User account is disabled.');
             throw new Error('User account is disabled.');
-          case 'auth/user-not-found':
-            alert('User not found. Please check your email and password.');
-            throw new Error(
-              'User not found. Please check your email and password.'
+          case 'auth/invalid-password':
+            alert(
+              'Invalid password. Password should be at least 6 characters.'
             );
-          case 'auth/wrong-password':
-            alert('Incorrect password. Please try again.');
-            throw new Error('Incorrect password. Please try again.');
+            throw new Error('Invalid password. Please try again.');
           default:
-            alert('Failed to login User. Please try again later.');
-            throw new Error('Failed to login User. Please try again later.');
+            alert('Failed to create account. Please try again later.');
+            console.log(error);
+            throw new Error(
+              'Failed to create account. Please try again later.',
+              error
+            );
         }
       } else {
         alert('An unexpected error occurred.');
         throw new Error('An unexpected error occurred.');
       }
+    } finally {
+      router.replace('/(onboarding)');
     }
   };
 
