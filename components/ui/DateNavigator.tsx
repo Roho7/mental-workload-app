@@ -1,3 +1,4 @@
+import { MwlMap } from '@/constants/TaskParameters';
 import { Feather } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -75,7 +76,7 @@ const DateNavigator = ({
       markedDates[day.date] = {
         selected: true,
         marked: true,
-        dotColor: day.tasks > 1 ? 'orange' : 'green',
+        dotColor: MwlMap[day.mwl]?.color || 'yellow',
         textColor: '#7E7E7E',
       };
     });
