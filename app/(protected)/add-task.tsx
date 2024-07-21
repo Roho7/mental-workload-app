@@ -1,4 +1,3 @@
-import { useAuth } from '@/components/hooks/useAuth';
 import { useTasks } from '@/components/hooks/useTasks';
 import DateTimePicker from '@/components/ui/DateTimePicker';
 import DifficultyBadge, {
@@ -17,11 +16,12 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { Vibration } from 'react-native';
 
+import gAuth from '@react-native-firebase/auth';
 import uuid from 'react-native-uuid';
 import { Button, H2, Input, Text, TextArea, XStack, YStack } from 'tamagui';
 
 const AddTask = ({}) => {
-  const { user } = useAuth();
+  const user = gAuth().currentUser;
   const { fetchTasksAndMwl } = useTasks();
   const toast = useToastController();
   const [title, setTitle] = useState('');

@@ -1,4 +1,5 @@
 import { useAuth } from '@/components/hooks/useAuth';
+import gAuth from '@react-native-firebase/auth';
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { Link, Redirect } from 'expo-router';
 import React, { useState } from 'react';
@@ -8,7 +9,7 @@ import { Button, H3, H4, Image, Input, Text, View, YStack } from 'tamagui';
 type Props = {};
 
 const LoginPage = (props: Props) => {
-  const { login, user, signInWithGoogle } = useAuth();
+  const { login, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -18,7 +19,7 @@ const LoginPage = (props: Props) => {
 
   const isUserOnboadingDone = () => {};
 
-  if (user) {
+  if (gAuth().currentUser) {
     return <Redirect href='/(protected)' />;
   }
   return (

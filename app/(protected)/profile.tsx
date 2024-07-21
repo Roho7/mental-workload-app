@@ -1,10 +1,12 @@
 import { useAuth } from '@/components/hooks/useAuth';
 import { Feather } from '@expo/vector-icons';
+import gAuth from '@react-native-firebase/auth';
 import React from 'react';
 import { Avatar, Button, Card, H2, H4, Text, View, YStack } from 'tamagui';
 
 const ProfileScreen = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const user = gAuth().currentUser;
   return (
     <View paddingHorizontal='$2'>
       <H2>Profile</H2>
