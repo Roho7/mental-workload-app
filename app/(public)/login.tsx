@@ -1,8 +1,7 @@
 import { useAuth } from '@/components/hooks/useAuth';
-import { FontAwesome } from '@expo/vector-icons';
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { Link, Redirect } from 'expo-router';
 import React, { useState } from 'react';
-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, H3, H4, Image, Input, Text, View, YStack } from 'tamagui';
 
@@ -60,10 +59,16 @@ const LoginPage = (props: Props) => {
           </Button>
         </View>
         <H3>or</H3>
-        <Button backgroundColor='white' onPress={() => signInWithGoogle}>
+        {/* <Button backgroundColor='white' onPress={() => signInWithGoogle}>
           <FontAwesome name='google' color='black' />
           <Text color='black'>Continue with Google</Text>
-        </Button>
+        </Button> */}
+        <GoogleSigninButton
+          size={GoogleSigninButton.Size.Standard}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={signInWithGoogle}
+        />
+
         <YStack gap='$1'>
           <Text color='$gray10'>New to Serotonin?</Text>
           <Link href='/signup'>

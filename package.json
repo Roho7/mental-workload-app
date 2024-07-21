@@ -13,7 +13,9 @@
     "fb:serve": "cd ./functions && yarn serve",
     "fb:watch": "cd ./functions && yarn build:watch",
     "fb:deploy": "cd ./functions && yarn deploy",
-    "eas:build:android": "eas build --platform android --profile development"
+    "eas:build:android": "eas build --platform android --profile development",
+    "eas:secret:android": "eas secret:create --scope project --name GOOGLE_SERVICES_JSON --type file --value /Users/roho7/Documents/MAIN/CODE/mental-workload-app/app-root/google-services.json",
+    "eas:secret:ios": "eas secret:create --scope project --name GOOGLE_SERVICES_INFOPLIST --type file --value /Users/roho7/Documents/MAIN/CODE/mental-workload-app/app-root/GoogleService-Info.plist"
   },
   "jest": {
     "preset": "jest-expo"
@@ -35,6 +37,8 @@
     "eas-cli": "^10.1.0",
     "expo": "^51.0.18",
     "expo-application": "~5.9.1",
+    "expo-build-properties": "~0.12.3",
+    "expo-modules-autolinking": "~1.11.1",
     "expo-auth-session": "~5.5.2",
     "expo-crypto": "~13.0.2",
     "expo-dev-client": "~4.0.20",

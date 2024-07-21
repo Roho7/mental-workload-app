@@ -1,6 +1,5 @@
 import { auth, db } from '@/utils/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import gAuth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
@@ -137,9 +136,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   async function signInWithGoogle() {
     try {
       await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
-      const googleCredential = gAuth.GoogleAuthProvider.credential(idToken);
-      await gAuth().signInWithCredential(googleCredential);
+      const user = await GoogleSignin.signIn();
+      // const googleCredential = gAuth.GoogleAuthProvider.credential(
+      //   user.idToken
+      // );
+      // await gAuth().signInWithCredential(googleCredential);
+      setUser(user as unknown as User);
     } catch (error) {
       console.error(error);
     }
