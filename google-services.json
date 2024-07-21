@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "259742826474-56va49ru9jfhscd39m5t27merljfrnf1.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "serotonin.app",
-            "certificate_hash": "d262e3a8fe614a2eac2aa4a2c968cfd88f703e4c"
-          }
-        },
-        {
           "client_id": "259742826474-d0asagf2qmqhc2h2l0a89a9omf4umb14.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
