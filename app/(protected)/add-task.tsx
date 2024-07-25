@@ -7,7 +7,11 @@ import Dropdown from '@/components/ui/Dropdown';
 
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import { PriorityMap } from '@/constants/TaskParameters';
-import { PriorityValues, TaskType } from '@/constants/types';
+import {
+  GoogleCalendarEventType,
+  PriorityValues,
+  TaskType,
+} from '@/constants/types';
 import { db } from '@/utils/firebase';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
@@ -16,12 +20,15 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { Vibration } from 'react-native';
 
+import { useAuth } from '@/components/hooks/useAuth';
+import { FontAwesome } from '@expo/vector-icons';
 import gAuth from '@react-native-firebase/auth';
 import uuid from 'react-native-uuid';
 import { Button, H2, Input, Text, TextArea, XStack, YStack } from 'tamagui';
 
 const AddTask = ({}) => {
   const user = gAuth().currentUser;
+  const { getCalendarEvents } = useAuth();
   const { fetchTasksAndMwl } = useTasks();
   const toast = useToastController();
   const [title, setTitle] = useState('');
@@ -82,6 +89,33 @@ const AddTask = ({}) => {
       native: true,
     });
     router.back();
+  };
+
+  const convertGoogleEventToTask = (
+    event: GoogleCalendarEventType,
+    userId: string
+  ): TaskType => {
+    const priority = 0; // default priority
+    const description = event.summary; // Using event summary as description
+    const difficulty = 1; // Default difficulty
+    const bucket = event.organizer.email; // Default bucket
+
+    return {
+      bucket: bucket,
+      title: event.summary,
+      description: description || 'No description available',
+      status: 'pending', // default status
+      difficulty: difficulty,
+      startDate: event.start.dateTime
+        ? Timestamp.fromDate(new Date(event.start.dateTime))
+        : null,
+      endDate: event.end.dateTime
+        ? Timestamp.fromDate(new Date(event.end.dateTime))
+        : null,
+      priority: priority,
+      taskId: event.id,
+      userId: userId,
+    };
   };
 
   const reset = () => {
@@ -173,22 +207,35 @@ const AddTask = ({}) => {
       />
       <DateTimePicker date={endDate} setDate={setEndDate} label='End at' />
 
-      <Button
-        theme='green'
-        borderWidth='$0.25'
-        borderColor='green'
-        onPress={() => handleSubmit()}
-      >
-        Save
-      </Button>
-      {/* <Button
-        theme='green'
-        borderWidth='$0.25'
-        borderColor='green'
-        onPress={() => bulkAddTasks(tasksDemo)}
-      >
-        Bulk Add
-      </Button> */}
+      <YStack paddingVertical='$2' gap='$2'>
+        <Button
+          theme='green'
+          borderWidth='$0.25'
+          borderColor='green'
+          height={50}
+          onPress={() => handleSubmit()}
+        >
+          Save
+        </Button>
+        <Button
+          theme='light_blue'
+          borderWidth='$0.25'
+          borderColor='light_blue'
+          height={50}
+          onPress={async () => {
+            const calendarTasks = await getCalendarEvents();
+            if (!calendarTasks) return;
+            bulkAddTasks(
+              calendarTasks?.map((event) =>
+                convertGoogleEventToTask(event, user?.uid || '')
+              )
+            );
+          }}
+        >
+          <FontAwesome name='google' color='white' />
+          Sync with Google Calendar
+        </Button>
+      </YStack>
     </YStack>
   );
 };
