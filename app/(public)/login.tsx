@@ -1,14 +1,15 @@
 import { useAuth } from '@/components/hooks/useAuth';
+import gAuth from '@react-native-firebase/auth';
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { Link, Redirect } from 'expo-router';
 import React, { useState } from 'react';
-
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, H4, Image, Input, Text, View, YStack } from 'tamagui';
+import { Button, H3, H4, Image, Input, Text, View, YStack } from 'tamagui';
 
 type Props = {};
 
 const LoginPage = (props: Props) => {
-  const { login, user } = useAuth();
+  const { login, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -18,7 +19,7 @@ const LoginPage = (props: Props) => {
 
   const isUserOnboadingDone = () => {};
 
-  if (user) {
+  if (gAuth().currentUser) {
     return <Redirect href='/(protected)' />;
   }
   return (
@@ -58,6 +59,17 @@ const LoginPage = (props: Props) => {
             Submit
           </Button>
         </View>
+        <H3>or</H3>
+        {/* <Button backgroundColor='white' onPress={() => signInWithGoogle}>
+          <FontAwesome name='google' color='black' />
+          <Text color='black'>Continue with Google</Text>
+        </Button> */}
+        <GoogleSigninButton
+          size={GoogleSigninButton.Size.Standard}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={signInWithGoogle}
+        />
+
         <YStack gap='$1'>
           <Text color='$gray10'>New to Serotonin?</Text>
           <Link href='/signup'>

@@ -1,8 +1,8 @@
-import { useAuth } from '@/components/hooks/useAuth';
 import Colors from '@/constants/Colors';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import gAuth from '@react-native-firebase/auth';
 import { Link, Redirect, Tabs } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, useColorScheme } from 'react-native';
@@ -23,7 +23,8 @@ const preferences = AsyncStorage.getItem('userPreferences');
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(false);
   const colorScheme = useColorScheme();
-  const { user } = useAuth();
+  const user = gAuth().currentUser;
+
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
