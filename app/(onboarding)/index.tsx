@@ -1,10 +1,9 @@
-import { useAuth } from '@/components/hooks/useAuth';
 import { db } from '@/utils/firebase';
+import gAuth from '@react-native-firebase/auth';
 import { router } from 'expo-router';
 import { addDoc, collection } from 'firebase/firestore';
 import React, { useState, useTransition } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { Button, Card, H4, H5, Text, XStack, YStack } from 'tamagui';
 
 const OnboardingMap: Record<number, any> = {
@@ -38,7 +37,7 @@ const OnboardingMap: Record<number, any> = {
 };
 
 const Onboarding = () => {
-  const { user } = useAuth();
+  const user = gAuth().currentUser;
   const [isPending, startTransition] = useTransition();
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<Record<string, any>>({

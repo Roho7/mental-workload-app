@@ -1,4 +1,7 @@
+import { TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import gAuth from '@react-native-firebase/auth';
 import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 import moment from 'moment';
 import {
@@ -11,10 +14,6 @@ import {
   useState,
   useTransition,
 } from 'react';
-
-import { TaskType } from '@/constants/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from './useAuth';
 
 export type MWLObjectType = {
   [key: string]: { mwl: number; feedback: string };
@@ -47,7 +46,8 @@ type TaskContextType = {
 const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const user = gAuth().currentUser;
+
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [isPending, startTransition] = useTransition();
   const mwlObject = useRef<MWLObjectType>({});

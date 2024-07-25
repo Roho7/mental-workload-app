@@ -20,3 +20,36 @@ export type TaskType = {
   taskId: string;
   userId: string;
 };
+
+export type GoogleCalendarEventType = {
+  created: string;
+  creator: {
+    email: string;
+    self: boolean;
+  };
+  end: {
+    dateTime: string;
+    timeZone: string;
+  };
+  etag: string;
+  eventType: string;
+  htmlLink: string;
+  iCalUID: string;
+  id: string;
+  kind: string;
+  organizer: {
+    email: string;
+    self: boolean;
+  };
+  reminders: {
+    useDefault: boolean;
+  };
+  sequence: number;
+  start: {
+    dateTime: string;
+    timeZone: string;
+  };
+  status: string;
+  summary: string;
+  updated: string;
+};
