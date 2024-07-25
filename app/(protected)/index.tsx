@@ -2,6 +2,7 @@ import { useAuth } from '@/components/hooks/useAuth';
 import { useTasks } from '@/components/hooks/useTasks';
 import TaskCard from '@/components/ui/TaskCard';
 import { Feather } from '@expo/vector-icons';
+import gAuth from '@react-native-firebase/auth';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -24,16 +25,16 @@ import {
 } from 'tamagui';
 import DonutCard from '../../components/ui/homepage/DonutCard';
 import WeeklyCard from '../../components/ui/homepage/WeeklyCard';
-
 const cardArray = [<DonutCard />, <WeeklyCard />];
 
 export default function TabOneScreen() {
   const width = useWindowDimensions().width;
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const { todaysTasks, fetchTasksAndMwl } = useTasks();
   const toast = useToastController();
+  const user = gAuth().currentUser;
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

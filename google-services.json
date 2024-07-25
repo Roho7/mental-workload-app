@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "259742826474",
+    "firebase_url": "https://mental-workload-app-default-rtdb.firebaseio.com",
     "project_id": "mental-workload-app",
     "storage_bucket": "mental-workload-app.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "259742826474-d0asagf2qmqhc2h2l0a89a9omf4umb14.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "serotonin.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
         {
           "client_id": "259742826474-b64ddro6uja31j6qpnjp08gpahq65j5t.apps.googleusercontent.com",
           "client_type": 3
