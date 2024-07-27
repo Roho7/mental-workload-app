@@ -1,23 +1,26 @@
 import { useTasks } from '@/components/hooks/useTasks';
 import DateNavigator from '@/components/ui/DateNavigator';
-
 import Graph from '@/components/ui/Graph';
 import MwlModal from '@/components/ui/mental-workload/MwlModal';
-
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard from '@/components/ui/TaskCard';
+
 import { TaskType } from '@/constants/types';
 import { useToastController } from '@tamagui/toast';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, Vibration } from 'react-native';
+import {
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Vibration,
+} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import {
   Button,
   Card,
   H2,
   H3,
-  ScrollView,
   Text,
   useWindowDimensions,
   View,
@@ -28,7 +31,7 @@ export type intervalTypes = 'daily' | 'weekly' | 'monthly';
 
 const intervalOptions: intervalTypes[] = ['daily', 'weekly', 'monthly'];
 
-const MentalWorkloadScreen = () => {
+const DailyMentalWorkloadScreen = () => {
   const {
     todaysTasks,
     getTasksByDate,
@@ -86,14 +89,13 @@ const MentalWorkloadScreen = () => {
         contentContainerStyle={{
           flexGrow: 1,
           backgroundColor: '#000',
-          padding: 16,
+          paddingVertical: 16,
         }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         <YStack gap='$4'>
-          <H2>Mental Workload</H2>
           <Card
             paddingVertical='$6'
             paddingHorizontal='$4'
@@ -217,9 +219,11 @@ const MentalWorkloadScreen = () => {
                       width: '100%',
                       display: 'flex',
                       justifyContent: 'center',
+                      padding: 2,
+                      flex: 1,
                     }}
                   >
-                    <View style={{ width: '90%' }}>{item}</View>
+                    <View>{item}</View>
                   </View>
                 );
               }}
@@ -266,4 +270,4 @@ const MentalWorkloadScreen = () => {
   );
 };
 
-export default MentalWorkloadScreen;
+export default DailyMentalWorkloadScreen;

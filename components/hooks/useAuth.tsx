@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const userData = await AsyncStorage.getItem('user');
+        // const userData = await AsyncStorage.getItem('user');
         // if (userData) {
         //   setUser(JSON.parse(userData));
         // }
