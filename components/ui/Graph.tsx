@@ -26,7 +26,6 @@ export const chartConfig = {
     strokeWidth: '2',
     stroke: '#fff',
   },
-  propsForVerticalLabels: {},
 };
 
 const dailyLabels = ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '12AM', '3AM'];
