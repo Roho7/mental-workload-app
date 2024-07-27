@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // const [user, setUser] = useState<User | null>(null);
   const [userPreferences, setUserPreferences] = useState<any | null>(null);
   const toast = useToastController();
-
   const signup = async (email: string, username: string, password: string) => {
     try {
       const new_user = await gAuth().createUserWithEmailAndPassword(
@@ -145,10 +144,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        // const userData = await AsyncStorage.getItem('user');
-        // if (userData) {
-        //   setUser(JSON.parse(userData));
-        // }
         const onboardingRef = collection(
           db,
           `tbl_users/${gAuth().currentUser?.uid}/preferences`
