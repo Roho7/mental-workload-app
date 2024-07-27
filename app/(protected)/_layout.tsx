@@ -4,10 +4,10 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import gAuth from '@react-native-firebase/auth';
 import { Link, Redirect, Tabs } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Avatar, Text } from 'tamagui';
+import { Avatar } from 'tamagui';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(
@@ -21,13 +21,9 @@ function TabBarIcon(
 const preferences = AsyncStorage.getItem('userPreferences');
 
 export default function TabLayout() {
-  const [isLoading, setIsLoading] = useState(false);
   const colorScheme = useColorScheme();
   const user = gAuth().currentUser;
 
-  if (isLoading) {
-    return <Text>Loading...</Text>;
-  }
   if (!user) {
     return <Redirect href='/login' />;
   }
