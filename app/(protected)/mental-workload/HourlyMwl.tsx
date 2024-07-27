@@ -7,20 +7,6 @@ import { Dimensions, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Text, View, YStack } from 'tamagui';
 
-const events = [
-  {
-    startTime: new Date('2023-07-25T00:00:00').getTime(),
-    endTime: new Date('2023-07-25T01:30:00').getTime(),
-    title: 'Meeting',
-  },
-  {
-    startTime: new Date('2023-07-25T07:00:00').getTime(),
-    endTime: new Date('2023-07-25T08:00:00').getTime(),
-    title: 'Lunch',
-  },
-  // ... more events
-];
-
 const HourlyMentalWorkloadScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { todaysTasks } = useTasks();
