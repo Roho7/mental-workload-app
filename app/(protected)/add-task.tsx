@@ -17,14 +17,23 @@ import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Vibration } from 'react-native';
 
 import { useAuth } from '@/components/hooks/useAuth';
 import { FontAwesome } from '@expo/vector-icons';
 import gAuth from '@react-native-firebase/auth';
 import uuid from 'react-native-uuid';
-import { Button, H2, Input, Text, TextArea, XStack, YStack } from 'tamagui';
+import {
+  Button,
+  H2,
+  Input,
+  Spinner,
+  Text,
+  TextArea,
+  XStack,
+  YStack,
+} from 'tamagui';
 
 const AddTask = ({}) => {
   const user = gAuth().currentUser;
@@ -39,11 +48,14 @@ const AddTask = ({}) => {
   const [endDate, setEndDate] = useState<Timestamp | null>(
     Timestamp.fromDate(moment(Timestamp.now().toDate()).add(1, 'hour').toDate())
   );
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    setLoading(true);
     if (!user) {
       return;
     }
+
     const insertData: TaskType = {
       userId: user.uid,
       title: title,
@@ -64,6 +76,7 @@ const AddTask = ({}) => {
     toast.show('Task added!', {
       native: true,
     });
+    setLoading(false);
     reset();
     fetchTasksAndMwl();
     router.back();
@@ -118,6 +131,12 @@ const AddTask = ({}) => {
     };
   };
 
+  useEffect(() => {
+    setEndDate(
+      Timestamp.fromDate(moment(startDate?.toDate()).add(1, 'hour').toDate())
+    );
+  }, [startDate]);
+
   const reset = () => {
     setTitle('');
     setDescription('');
@@ -127,6 +146,20 @@ const AddTask = ({}) => {
     setEndDate(null);
   };
 
+  if (loading) {
+    return (
+      <YStack
+        style={{
+          height: '100%',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spinner size='large' color='$color10' />
+      </YStack>
+    );
+  }
   return (
     <YStack gap='$4' paddingInline='$2'>
       <XStack alignItems='center' gap='$4'>
@@ -200,12 +233,8 @@ const AddTask = ({}) => {
       {/* ============================================ */}
       {/*                   DATE PICKERS               */}
       {/* ============================================ */}
-      <DateTimePicker
-        date={startDate}
-        setDate={setStartDate}
-        label='Start at'
-      />
-      <DateTimePicker date={endDate} setDate={setEndDate} label='End at' />
+      <DateTimePicker date={startDate} setDate={setStartDate} label='From:' />
+      <DateTimePicker date={endDate} setDate={setEndDate} label='Till:' />
 
       <YStack paddingVertical='$2' gap='$2'>
         <Button
