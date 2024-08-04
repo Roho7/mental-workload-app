@@ -190,10 +190,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     try {
-      const { accessToken } = await GoogleSignin.getTokens();
-      if (!accessToken) {
-        throw new Error('No access token found');
+      const { idToken } = await GoogleSignin.getTokens();
+      if (!idToken) {
+        throw new Error('No id token found');
       }
+
       const response = await fetch(
         // 'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
         'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
@@ -203,11 +204,13 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           headers: {
             'Content-Type': 'application/json',
             'is-temporary': isTemporaryFeedback ? 'true' : 'false',
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${idToken}`,
           },
         }
       );
-      console.log('Response:', response);
+
+      const responseBody = await response.text();
+      console.log('Mental workload response: ', responseBody);
       return response.json();
     } catch (error) {
       console.error('Error updating document: ', error);
