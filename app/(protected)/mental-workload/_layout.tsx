@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
-import { H3, SizableText, Tabs } from 'tamagui';
+import { H3, Tabs, Text } from 'tamagui';
 import DailyMentalWorkloadScreen from './DailyMwl';
 import HourlyMentalWorkloadScreen from './HourlyMwl';
 
@@ -34,10 +34,10 @@ const MwlTabLayout = () => {
       >
         <Tabs.List aria-label='See your mental workload distribution'>
           <Tabs.Tab flex={1} value='tab1'>
-            <SizableText fontFamily='$body'>Daily</SizableText>
+            <Text>Daily</Text>
           </Tabs.Tab>
           <Tabs.Tab flex={1} value='tab2'>
-            <SizableText fontFamily='$body'>Hourly</SizableText>
+            <Text>Hourly</Text>
           </Tabs.Tab>
         </Tabs.List>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { TaskType } from '@/constants/types';
 import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Pressable, Vibration } from 'react-native';
 import OutsidePressHandler from 'react-native-outside-press';
 import { Button, H4, Text, View, XStack, YStack } from 'tamagui';
@@ -82,8 +83,11 @@ const TaskCard = ({ task }: { task: TaskType }) => {
                 <Text color='white'>Complete Task</Text>
                 <Feather name='check-circle' color='white' />
               </Button>
-              <Button theme='purple'>
-                <Text color='white'>Reschedule</Text>
+              <Button
+                theme='purple'
+                onPress={() => router.replace(`/add-task/${task.taskId}`)}
+              >
+                <Text color='white'>Edit</Text>
                 <Feather name='calendar' color='white' />
               </Button>
               <Button theme='red' onPress={() => handleDeleteTask(task)}>
