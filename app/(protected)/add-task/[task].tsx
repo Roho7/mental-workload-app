@@ -8,13 +8,14 @@ import Dropdown from '@/components/ui/Dropdown';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import { PriorityMap } from '@/constants/TaskParameters';
 import {
+  DifficultyValues,
   GoogleCalendarEventType,
   PriorityValues,
   TaskType,
 } from '@/constants/types';
 import { db } from '@/utils/firebase';
 import { useToastController } from '@tamagui/toast';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -37,13 +38,14 @@ import {
 
 const AddTask = ({}) => {
   const user = gAuth().currentUser;
+  const local = useLocalSearchParams();
   const { getCalendarEvents } = useAuth();
-  const { fetchTasksAndMwl } = useTasks();
+  const { fetchTasksAndMwl, tasks } = useTasks();
   const toast = useToastController();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState<string | undefined>();
+  const [description, setDescription] = useState<string | undefined>();
   const [priority, setPriority] = useState<PriorityValues>(0);
-  const [mwl, setMwl] = useState(1);
+  const [difficulty, setDifficulty] = useState<DifficultyValues>(1);
   const [startDate, setStartDate] = useState<Timestamp | null>(Timestamp.now());
   const [endDate, setEndDate] = useState<Timestamp | null>(
     Timestamp.fromDate(moment(Timestamp.now().toDate()).add(1, 'hour').toDate())
@@ -52,16 +54,16 @@ const AddTask = ({}) => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    if (!user) {
+    if (!user || !title) {
       return;
     }
 
     const insertData: TaskType = {
       userId: user.uid,
       title: title,
-      description: description,
+      description: description || '',
       priority: priority,
-      difficulty: mwl,
+      difficulty: difficulty,
       startDate: startDate,
       endDate: endDate,
       taskId: uuid.v4().toString(),
@@ -137,11 +139,28 @@ const AddTask = ({}) => {
     );
   }, [startDate]);
 
+  useEffect(() => {
+    if (local.task) {
+      const task = tasks.find((task) => task.taskId === local.task);
+
+      setTitle(task?.title);
+      setDescription(task?.description);
+      setPriority(task?.priority ?? 1);
+      setDifficulty(task?.difficulty ?? 1);
+      setStartDate(Timestamp.fromDate(task?.startDate?.toDate() ?? new Date()));
+      setEndDate(
+        Timestamp.fromDate(
+          task?.endDate?.toDate() ?? moment(new Date()).add(1, 'hour').toDate()
+        )
+      );
+    }
+  }, []);
+
   const reset = () => {
     setTitle('');
     setDescription('');
     setPriority(0);
-    setMwl(1);
+    setDifficulty(1);
     setStartDate(null);
     setEndDate(null);
   };
@@ -208,13 +227,13 @@ const AddTask = ({}) => {
       {/*               DIFFICULTY DROPDOWN            */}
       {/* ============================================ */}
       <Dropdown
-        action={() => setMwl}
+        action={() => setDifficulty}
         elements={[1, 2, 3, 4, 5].map((item) => {
           return (
             <Button
               size='$5'
               onPress={() => {
-                setMwl(item);
+                setDifficulty(item as DifficultyValues);
               }}
             >
               <XStack gap='$3'>
@@ -226,8 +245,8 @@ const AddTask = ({}) => {
         })}
       >
         <Button>
-          <DifficultyBadge load={mwl} />
-          <Text>{DifficultyMap[mwl].text}</Text>
+          <DifficultyBadge load={difficulty} />
+          <Text>{DifficultyMap[difficulty].text}</Text>
         </Button>
       </Dropdown>
       {/* ============================================ */}
