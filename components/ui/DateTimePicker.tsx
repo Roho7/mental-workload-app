@@ -5,7 +5,7 @@ import moment from 'moment';
 import React, { Dispatch, useState } from 'react';
 
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Button, View } from 'tamagui';
+import { Button, Text, View, XStack } from 'tamagui';
 
 const DateTimePicker = ({
   label,
@@ -33,10 +33,17 @@ const DateTimePicker = ({
 
   return (
     <View>
-      <Button onPress={showDatePicker}>
-        <Feather name='calendar' size={16} color='white' />
-        {label}
-        {date && moment(date.toDate()).format('MMM Do HH:mm')}
+      <Button
+        onPress={showDatePicker}
+        display='flex'
+        flexDirection='row'
+        justifyContent='space-between'
+      >
+        <XStack alignItems='center' gap='$1'>
+          <Feather name='calendar' size={16} color='white' />
+          <Text> {date && moment(date.toDate()).format('MMM Do')}</Text>
+        </XStack>
+        {date && moment(date.toDate()).format('HH:mmA')}
       </Button>
       <DateTimePickerModal
         date={date ? date.toDate() : new Date()}

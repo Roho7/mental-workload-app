@@ -10,7 +10,7 @@ type GraphProps = {
   range: { start: moment.Moment | null; end: moment.Moment | null };
 };
 
-const chartConfig = {
+export const chartConfig = {
   backgroundGradientFrom: '#0362FF',
   backgroundGradientFromOpacity: 0,
   backgroundGradientTo: '#08130D',

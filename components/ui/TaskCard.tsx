@@ -11,7 +11,7 @@ import PriorityBadge from './PriorityBadge';
 
 const TaskCard = ({ task }: { task: TaskType }) => {
   const [showActions, setShowActions] = useState(false);
-  const { updateTask } = useTasks();
+  const { updateTask, removeTask } = useTasks();
   const handleLongPress = () => {
     if (task.status === 'done') return;
     Vibration.vibrate(100);
@@ -20,6 +20,10 @@ const TaskCard = ({ task }: { task: TaskType }) => {
 
   const handleCompleteTask = (task: TaskType) => {
     updateTask(task.taskId, { ...task, status: 'done' });
+    setShowActions(false);
+  };
+  const handleDeleteTask = (task: TaskType) => {
+    removeTask(task.taskId, task);
     setShowActions(false);
   };
 
@@ -82,7 +86,7 @@ const TaskCard = ({ task }: { task: TaskType }) => {
                 <Text color='white'>Reschedule</Text>
                 <Feather name='calendar' color='white' />
               </Button>
-              <Button theme='red'>
+              <Button theme='red' onPress={() => handleDeleteTask(task)}>
                 <Text color='white'>Delete</Text>
                 <Feather name='trash' color='white' />
               </Button>

@@ -2,7 +2,14 @@ import { TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import gAuth from '@react-native-firebase/auth';
-import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  updateDoc,
+} from 'firebase/firestore';
 import moment from 'moment';
 import {
   createContext,
@@ -25,7 +32,7 @@ type TaskContextType = {
   todaysTasks: TaskType[];
   completedTasks: TaskType[];
   addTask: (task: TaskType) => void;
-  removeTask: (id: string) => void;
+  removeTask: (id: string, task: TaskType) => void;
   updateTask: (id: string, task: TaskType) => void;
   daysWithTasks: { date: string; tasks: number; mwl: number }[];
   getTasksByDate: (date: Date) => TaskType[];
@@ -74,14 +81,17 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       ]);
 
       // Process tasks
-      const tasks = taskSnapshot.docs.map((doc) => doc.data());
+      const tasks = taskSnapshot.docs.map((doc: any) => doc.data());
       // console.log('Fetched tasks:', tasks); // Log fetched tasks
 
       // Process MWL data
-      const mwl = mwlSnapshot.docs.reduce((acc: Record<string, any>, doc) => {
-        acc[doc.id] = doc.data();
-        return acc;
-      }, {});
+      const mwl = mwlSnapshot.docs.reduce(
+        (acc: Record<string, any>, doc: any) => {
+          acc[doc.id] = doc.data();
+          return acc;
+        },
+        {}
+      );
       // console.log('Fetched MWL:', mwl); // Log fetched MWL
 
       // Update state for both tasks and MWL
@@ -102,7 +112,23 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     setTasks([...tasks, task]);
   };
 
-  const removeTask = (id: string) => {};
+  const removeTask = (id: string, newTask: TaskType) => {
+    if (!user) throw new Error('User is not authenticated');
+
+    setTasks((prevTasks) => prevTasks.filter((task) => task.taskId !== id));
+    startTransition(() => {
+      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, id);
+      deleteDoc(taskRef).catch((error) => {
+        console.error('Error deleting document: ', error);
+        // Optionally, handle error and revert state if necessary
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.taskId === id ? { ...task, ...newTask } : task
+          )
+        );
+      });
+    });
+  };
 
   const updateTask = (id: string, newTask: TaskType) => {
     if (!user) throw new Error('User is not authenticated');
@@ -162,7 +188,12 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       userId: user?.uid,
       date: date.format('DD-MM-YYYY'),
     };
+
     try {
+      const { accessToken } = await GoogleSignin.getTokens();
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
       const response = await fetch(
         // 'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
         'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
@@ -172,7 +203,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           headers: {
             'Content-Type': 'application/json',
             'is-temporary': isTemporaryFeedback ? 'true' : 'false',
-            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_GCLOUD_TOKEN}`,
+            'Authorization': `Bearer ${accessToken}`,
           },
         }
       );
