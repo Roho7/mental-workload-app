@@ -204,7 +204,7 @@ const DailyMentalWorkloadScreen = () => {
                 >
                   <Text>
                     {mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.feedback || ''}
+                      ?.feedback || 'No feedback yet'}
                   </Text>
                 </Card>,
               ]}
