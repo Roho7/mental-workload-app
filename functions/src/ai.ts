@@ -12,7 +12,6 @@ export type AIMwlReturnType = {
 
 export const gemini = new VertexAI({
   project: 'mental-workload-app',
-  location: 'asia-southeast1',
 });
 
 const model = 'gemini-1.5-flash';

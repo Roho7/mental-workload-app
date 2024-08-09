@@ -18,7 +18,7 @@ import { useToastController } from '@tamagui/toast';
 import { router, useLocalSearchParams } from 'expo-router';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 
 import { useAuth } from '@/components/hooks/useAuth';
@@ -41,6 +41,7 @@ const AddTask = ({}) => {
   const local = useLocalSearchParams();
   const { getCalendarEvents } = useAuth();
   const { fetchTasksAndMwl, tasks } = useTasks();
+  const editTaskData = useRef<TaskType | null>(null);
   const toast = useToastController();
   const [title, setTitle] = useState<string | undefined>();
   const [description, setDescription] = useState<string | undefined>();
@@ -69,10 +70,17 @@ const AddTask = ({}) => {
       taskId: uuid.v4().toString(),
     };
 
-    await setDoc(doc(db, `tbl_users/${user.uid}/tasks`, insertData.taskId), {
-      ...insertData,
-      userId: user.uid,
-    });
+    await setDoc(
+      doc(
+        db,
+        `tbl_users/${user.uid}/tasks`,
+        editTaskData.current?.taskId ?? insertData.taskId
+      ),
+      {
+        ...insertData,
+        userId: user.uid,
+      }
+    );
 
     Vibration.vibrate(10);
     toast.show('Task added!', {
@@ -142,7 +150,7 @@ const AddTask = ({}) => {
   useEffect(() => {
     if (local.task) {
       const task = tasks.find((task) => task.taskId === local.task);
-
+      editTaskData.current = task || null;
       setTitle(task?.title);
       setDescription(task?.description);
       setPriority(task?.priority ?? 1);

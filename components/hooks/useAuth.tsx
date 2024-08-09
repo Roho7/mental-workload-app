@@ -38,7 +38,6 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // const [user, setUser] = useState<User | null>(null);
   const [userPreferences, setUserPreferences] = useState<any | null>(null);
   const toast = useToastController();
   const signup = async (email: string, username: string, password: string) => {
@@ -128,6 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user.idToken
       );
       await gAuth().signInWithCredential(googleCredential);
+      router.replace('/(protected)');
     } catch (error) {
       console.error(error);
     }
@@ -139,6 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await gAuth().signOut();
     await AsyncStorage.setItem('user', '');
     signOut(auth);
+    router.replace('/(public)/login');
   };
 
   useEffect(() => {
