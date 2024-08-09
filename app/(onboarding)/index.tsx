@@ -1,6 +1,7 @@
 import { db } from '@/utils/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import gAuth from '@react-native-firebase/auth';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { addDoc, collection } from 'firebase/firestore';
 import React, { useState, useTransition } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -61,6 +62,10 @@ const Onboarding = () => {
         });
     });
   };
+  const preferences = AsyncStorage.getItem('userPreferences');
+  if (!preferences) {
+    return <Redirect href='/(onboarding)' />;
+  }
   return (
     <SafeAreaView
       style={{ backgroundColor: 'black', flex: 1, flexGrow: 1, height: '100%' }}

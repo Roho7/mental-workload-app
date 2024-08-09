@@ -1,4 +1,5 @@
-import { TaskType } from '@/constants/types';
+import { multipliersMap } from '@/constants/TaskParameters';
+import { MWLValues, TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import gAuth from '@react-native-firebase/auth';
@@ -48,6 +49,7 @@ type TaskContextType = {
   }) => Promise<any>;
   fetchTasksAndMwl: () => void;
   mwlObject: React.MutableRefObject<MWLObjectType>;
+  todaysApproximateMWL: { values: number[]; avg: MWLValues };
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
@@ -65,7 +67,10 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   //   GET TASKS
   const fetchTasksAndMwl = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user');
+      return;
+    }
 
     try {
       const userUid = user.uid;
@@ -194,7 +199,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       if (!idToken) {
         throw new Error('No id token found');
       }
-
       const response = await fetch(
         // 'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
         'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
@@ -203,15 +207,14 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+
             'is-temporary': isTemporaryFeedback ? 'true' : 'false',
             'Authorization': `Bearer ${idToken}`,
           },
         }
       );
-
-      const responseBody = await response.text();
-      console.log('Mental workload response: ', responseBody);
-      return response.json();
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error updating document: ', error);
     }
@@ -281,7 +284,74 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     }));
   }, [tasks]);
 
-  const upcomingTasks = useMemo(() => {}, [tasks]);
+  const todaysApproximateMWL = useMemo(() => {
+    // Initialize an array with 48 half-hour slots, all set to 0
+    const halfHourlyData = new Array(48).fill(0);
+
+    // Iterate through each task to populate the half-hourly data
+    todaysTasks.forEach((task, index) => {
+      // Convert start and end times to Date objects
+      const taskStartTime = new Date(task.startDate?.toMillis() || 0);
+      const previousTaskEndTime = new Date(
+        todaysTasks[index > 0 ? index - 1 : 0]?.endDate?.toMillis() || 0
+      );
+      const taskEndTime = new Date(task.endDate?.toMillis() || 0);
+
+      // Retrieve multipliers for difficulty, priority, and gaps
+      const difficultyMultiplier =
+        multipliersMap.difficulty[task.difficulty] || 1;
+      const priorityMultiplier = multipliersMap.priority[task.priority] || 1;
+      const gapMultiplier =
+        multipliersMap.gap[
+          Math.abs(
+            Math.floor(
+              previousTaskEndTime.getHours() - taskStartTime.getHours()
+            )
+          )
+        ] || 1;
+
+      // Determine the start and end indices for half-hour slots
+      const startIndex =
+        taskStartTime.getHours() * 2 +
+        Math.floor(taskStartTime.getMinutes() / 30);
+      const endIndex =
+        taskEndTime.getHours() * 2 + Math.ceil(taskEndTime.getMinutes() / 30);
+
+      // Update the half-hourly data array based on task duration and multipliers
+      for (let i = startIndex; i < endIndex; i++) {
+        halfHourlyData[i] +=
+          1 * difficultyMultiplier * priorityMultiplier * gapMultiplier;
+      }
+    });
+
+    // Apply additional adjustments for nearby tasks
+    halfHourlyData.forEach((value, index) => {
+      if (
+        value > 0 &&
+        index + 4 < halfHourlyData.length &&
+        halfHourlyData[index + 4] > 0
+      ) {
+        if (index + 2 < halfHourlyData.length) halfHourlyData[index + 2] += 2;
+        if (index + 3 < halfHourlyData.length) halfHourlyData[index + 3] += 1;
+      }
+      if (value > 4) {
+        halfHourlyData[index] = 4;
+      }
+    });
+
+    // Calculate the average value of non-zero entries
+    const nonZeroValues = halfHourlyData.filter((value) => value > 0);
+    const average =
+      nonZeroValues.length > 0
+        ? halfHourlyData.reduce((acc, val) => acc + val, 0) /
+          nonZeroValues.length
+        : 0;
+
+    console.log('halfHourlyData:', halfHourlyData);
+
+    // Return the computed values and average
+    return { values: halfHourlyData, avg: Math.round(average) as MWLValues };
+  }, [todaysTasks]);
 
   const values = useMemo(
     () => ({
@@ -298,6 +368,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       getTasksByDate,
       getTasksByRange,
       mwlObject,
+      todaysApproximateMWL,
     }),
     [tasks]
   );
