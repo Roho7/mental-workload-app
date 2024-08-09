@@ -5,7 +5,7 @@ import MwlModal from '@/components/ui/mental-workload/MwlModal';
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard from '@/components/ui/TaskCard';
 
-import { TaskType } from '@/constants/types';
+import { MWLValues, TaskType } from '@/constants/types';
 import { useToastController } from '@tamagui/toast';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -117,7 +117,7 @@ const DailyMentalWorkloadScreen = () => {
                 <MwlFeedbackLabel
                   mwl={
                     mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.mwl as 1 | 2 | 3 | 4 | 5
+                      ?.mwl as MWLValues
                   }
                 />
               ) : (
@@ -177,7 +177,7 @@ const DailyMentalWorkloadScreen = () => {
                 >
                   <H2>
                     {(mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.mwl as 1 | 2 | 3 | 4 | 5) || 0}
+                      ?.mwl as MWLValues) || 0}
                   </H2>
 
                   <Text color='$gray10' textAlign='center'>
