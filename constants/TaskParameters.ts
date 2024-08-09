@@ -66,3 +66,9 @@ export const MwlMap: Record<number, MwlType> = {
     feedbackText: 'Not enough challenge',
   },
 };
+
+export const multipliersMap: Record<string, any> = {
+  difficulty: { 1: 0.5, 2: 1, 3: 1.5, 4: 1.7, 5: 2 },
+  priority: { 0: 0.7, 1: 1, 2: 1.2, 3: 1.5, 4: 1.7 },
+  gap: { 0: 1.7, 1: 1, 2: 0.5 },
+};
