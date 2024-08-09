@@ -10,7 +10,7 @@ import { Text, View, YStack } from 'tamagui';
 const HourlyMentalWorkloadScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { todaysTasks } = useTasks();
-  const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef<ScrollView | null>(null);
   const [contentWidth, setContentWidth] = useState(0);
   const screenWidth = Dimensions.get('window').width;
 
@@ -34,7 +34,11 @@ const HourlyMentalWorkloadScreen = () => {
 
   useEffect(() => {
     calculateContentWidth();
-  }, []);
+    scrollViewRef.current?.scrollTo({
+      x: getEventStyle(todaysTasks[0]).left,
+      y: 0,
+    });
+  }, [todaysTasks]);
 
   const formatTime = (timestamp: any) => {
     return new Date(timestamp).toLocaleTimeString([], {
@@ -107,7 +111,6 @@ const HourlyMentalWorkloadScreen = () => {
 
     return timeMarkers;
   };
-
   const halfHourlyMwlData = useMemo(() => {
     const multipliersMap: Record<string, any> = {
       difficulty: { 1: 1, 2: 1.2, 3: 1.5, 4: 1.7, 5: 2 },
@@ -115,13 +118,19 @@ const HourlyMentalWorkloadScreen = () => {
     };
     const halfHourlyData: number[] = new Array(48).fill(0);
 
-    todaysTasks.forEach((task) => {
+    todaysTasks.forEach((task, taskIndex) => {
       const taskStartTime = new Date(task.startDate?.toMillis() || 0);
+      const previousTaskEndTime = new Date(
+        todaysTasks[taskIndex - 1]?.startDate?.toMillis() || 0
+      );
       const taskEndTime = new Date(task.endDate?.toMillis() || 0);
       const difficultyMultiplier =
         multipliersMap.difficulty[task.difficulty] || 1;
       const priorityMultiplier = multipliersMap.priority[task.priority] || 1;
-
+      const gapMultiplier =
+        previousTaskEndTime.getHours() - taskStartTime.getHours() < 1
+          ? 0.5
+          : 1.2;
       const startIndex =
         taskStartTime.getHours() * 2 +
         Math.floor(taskStartTime.getMinutes() / 30);
@@ -129,7 +138,8 @@ const HourlyMentalWorkloadScreen = () => {
         taskEndTime.getHours() * 2 + Math.ceil(taskEndTime.getMinutes() / 30);
 
       for (let i = startIndex; i < endIndex; i++) {
-        halfHourlyData[i] += 1 * difficultyMultiplier * priorityMultiplier;
+        halfHourlyData[i] +=
+          1 * difficultyMultiplier * priorityMultiplier * gapMultiplier;
       }
     });
 
@@ -164,6 +174,7 @@ const HourlyMentalWorkloadScreen = () => {
           }}
         >
           {renderTimeAxis()}
+
           {todaysTasks.map((event, index) => (
             <View key={index} style={[styles.eventCard, getEventStyle(event)]}>
               <Text style={styles.eventTitle}>{event.title}</Text>

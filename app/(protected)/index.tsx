@@ -23,9 +23,9 @@ import {
   XStack,
   YStack,
 } from 'tamagui';
+import DayDistributionCard from '../../components/ui/homepage/DayDistributionCard';
 import DonutCard from '../../components/ui/homepage/DonutCard';
-import WeeklyCard from '../../components/ui/homepage/WeeklyCard';
-const cardArray = [<DonutCard />, <WeeklyCard />];
+const cardArray = [<DonutCard />, <DayDistributionCard />];
 
 export default function TabOneScreen() {
   const width = useWindowDimensions().width;
@@ -63,7 +63,10 @@ export default function TabOneScreen() {
 
           <View>
             <Carousel
-              loop={false}
+              loop={true}
+              snapEnabled={true}
+              autoPlay
+              autoPlayInterval={5000}
               width={width}
               height={width / 1.5}
               data={cardArray}

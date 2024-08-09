@@ -1,8 +1,9 @@
 import { MwlMap } from '@/constants/TaskParameters';
+import { MWLValues } from '@/constants/types';
 import React from 'react';
 import { Text, View } from 'tamagui';
 
-const MwlFeedbackLabel = ({ mwl }: { mwl: 1 | 2 | 3 | 4 | 5 }) => {
+const MwlFeedbackLabel = ({ mwl }: { mwl: MWLValues }) => {
   return (
     mwl && (
       <View
