@@ -39,7 +39,7 @@ const DailyMentalWorkloadScreen = () => {
     mwlObject,
     fetchTasksAndMwl,
   } = useTasks();
-  const width = useWindowDimensions().width;
+  const width = useWindowDimensions().width - 10;
 
   const [selectedInterval, setSelectedInterval] = useState<
     'daily' | 'weekly' | 'monthly'
@@ -189,9 +189,13 @@ const DailyMentalWorkloadScreen = () => {
           </Card>
           <View flex={1}>
             <Carousel
-              loop={false}
+              loop={true}
+              autoPlay
+              scrollAnimationDuration={1000}
+              autoPlayInterval={6000}
               width={width}
               height={width / 1.5}
+              style={{ width: '100%' }}
               data={[
                 <Graph interval={selectedInterval} date={date} range={range} />,
                 <Card
@@ -201,14 +205,34 @@ const DailyMentalWorkloadScreen = () => {
                   borderWidth='$1'
                   backgroundColor='$background0'
                   borderRadius='$8'
+                  height='100%'
+                  alignItems='center'
                 >
-                  <Text>
-                    {mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.feedback || 'No feedback yet'}
-                  </Text>
+                  <H3>Day's Feedback</H3>
+
+                  {mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                    ?.feedback ? (
+                    <Text>
+                      {
+                        mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                          ?.feedback
+                      }
+                    </Text>
+                  ) : (
+                    <YStack gap='$8'>
+                      <Text color='$gray8'>
+                        Generate workload to receive feedback
+                      </Text>
+                      <Button
+                        color='$color'
+                        onPress={() => setOpenMwlModal(true)}
+                      >
+                        Calculate Workload
+                      </Button>
+                    </YStack>
+                  )}
                 </Card>,
               ]}
-              style={{ width: '100%' }}
               pagingEnabled={true}
               onSnapToItem={(index) => setActiveCardIndex(index)}
               renderItem={({ index, item }) => {
