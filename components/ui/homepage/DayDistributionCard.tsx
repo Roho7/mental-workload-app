@@ -1,4 +1,5 @@
 import { useTasks } from '@/components/hooks/useTasks';
+import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Text, View, XStack, YStack } from 'tamagui';
 
@@ -13,10 +14,10 @@ export const weekMap: Record<number, WeekMwlType> = {
   5: { day: 'Fri', mwl: 3 },
   6: { day: 'Sat', mwl: 4 },
 };
-const dayMap: Record<string, string> = {
-  0: 'morning',
-  1: 'afternoon',
-  2: 'evening',
+const dayMap: Record<number, any> = {
+  0: { name: 'morning', icon: <Feather name='sunrise' /> },
+  1: { name: 'afternoon', icon: <Feather name='sun' /> },
+  2: { name: 'evening', icon: <Feather name='moon' /> },
 };
 const DayDistributionCard = () => {
   const { todaysTasks, todaysApproximateMWL } = useTasks();
@@ -40,13 +41,14 @@ const DayDistributionCard = () => {
       backgroundColor='$background075'
       borderRadius='$8'
       padding='$4'
-      style={{
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      gap='$4'
     >
+      <YStack>
+        <Text fontSize={10} color='$blue10'>
+          Today
+        </Text>
+        <Text>MWL Distribution</Text>
+      </YStack>
       <YStack alignItems='center' justifyContent='center'>
         <XStack gap='$4'>
           {[0, 1, 2].map((item: number) => {
@@ -68,11 +70,16 @@ const DayDistributionCard = () => {
                     backgroundColor='$blue10'
                   ></View>
                 </View>
-                <Text
-                // color={weekMap[item].day === today ? '$blue11' : '$gray10'}
-                >
-                  {dayMap[item]}
-                </Text>
+                <YStack alignItems='center'>
+                  <Text
+                  // color={weekMap[item].day === today ? '$blue11' : '$gray10'}
+                  >
+                    {dayMap[item].icon}
+                  </Text>
+                  <Text color='$gray10' fontSize={10}>
+                    {dayMap[item].name}
+                  </Text>
+                </YStack>
               </YStack>
             );
           })}

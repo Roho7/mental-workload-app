@@ -34,6 +34,7 @@ const HourlyMentalWorkloadScreen = () => {
 
   useEffect(() => {
     calculateContentWidth();
+    if (todaysTasks.length === 0) return;
     scrollViewRef.current?.scrollTo({
       x: getEventStyle(todaysTasks[0]).left,
       y: 0,

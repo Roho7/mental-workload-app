@@ -1,5 +1,5 @@
 import { MwlType } from '@/components/ui/DifficultyBadge';
-import { PriorityMapType } from './types';
+import { MWLValues, PriorityMapType } from './types';
 
 export const PriorityMap: Record<number, PriorityMapType> = {
   4: {
@@ -29,36 +29,36 @@ export const PriorityMap: Record<number, PriorityMapType> = {
   },
 };
 
-export const MwlMap: Record<number, MwlType> = {
-  5: {
+export const MwlMap: Record<MWLValues, MwlType> = {
+  4: {
     color: '#DA7979',
     text: 'Overload',
     icon: 'brain',
     iconColor: '#DC2626',
     feedbackText: 'Overload!',
   },
-  4: {
+  3: {
     color: '#CCC46C',
     text: 'High Load',
     icon: 'brain',
     iconColor: '#FB7185',
     feedbackText: 'One of those tough days',
   },
-  3: {
+  2: {
     color: '#34C51E',
     text: 'Medium Load',
     icon: 'brain',
     iconColor: '#F59E0B',
     feedbackText: 'Perfect balance',
   },
-  2: {
+  1: {
     color: '#61B6DC',
     text: 'Light Load',
     icon: 'brain',
     iconColor: '#34D399',
     feedbackText: 'Breezier than usual',
   },
-  1: {
+  0: {
     color: '#9E81DD',
     text: 'No Load',
     icon: 'brain',
@@ -72,3 +72,12 @@ export const multipliersMap: Record<string, any> = {
   priority: { 0: 0.7, 1: 1, 2: 1.2, 3: 1.5, 4: 1.7 },
   gap: { 0: 1.7, 1: 1, 2: 0.5 },
 };
+
+export const tipsArray = [
+  'Take a break every 25 minutes',
+  'Try not to multitask whenever possible',
+  'Stay hydrated',
+  'A good night sleep can make a huge difference',
+  'Always keep gaps between tasks to avoid burnout',
+  'Try to do one difficult task a day, to keep the brain sharp',
+];
