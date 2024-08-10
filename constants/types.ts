@@ -21,6 +21,7 @@ export type TaskType = {
   priority: PriorityValues;
   taskId: string;
   userId: string;
+  experiencedMwl?: MWLValues;
 };
 
 export type GoogleCalendarEventType = {
