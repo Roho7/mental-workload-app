@@ -4,7 +4,7 @@ import Svg, { Circle, Text } from 'react-native-svg';
 import { useTasks } from '../hooks/useTasks';
 
 const radius = 40;
-const strokeWidth = 7;
+const strokeWidth = 12;
 const circumference = 2 * Math.PI * radius;
 
 function DonutChart() {
@@ -22,48 +22,48 @@ function DonutChart() {
   );
   return (
     <View style={{ height: 200, position: 'relative' }}>
-      <Svg width="200" height="200" viewBox="0 0 100 100">
+      <Svg width='200' height='200' viewBox='0 0 100 100'>
         <Circle
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          strokeLinecap='round'
           stroke={'#1F2839'}
-          cx="50"
-          cy="50"
+          cx='50'
+          cy='50'
           r={radius}
-          fill="transparent"
+          fill='transparent'
           strokeDasharray={circumference}
           strokeDashoffset={circumference * 100}
-          transform="rotate(-90, 50, 50)"
+          transform='rotate(-90, 50, 50)'
         />
         <Circle
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          strokeLinecap='round'
           stroke={'#34D399'}
-          cx="50"
-          cy="50"
+          cx='50'
+          cy='50'
           r={radius}
-          fill="transparent"
+          fill='transparent'
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - progress)}
-          transform="rotate(-90, 50, 50)"
+          transform='rotate(-90, 50, 50)'
         />
 
         {!isCompleted ? (
-          <Text x="50%" y="48%" textAnchor="middle" fill="grey" dy=".2em">
+          <Text x='50%' y='48%' textAnchor='middle' fill='grey' dy='.2em'>
             {todaysTasks.length - completedTasks.length}
           </Text>
         ) : (
-          <Text x="50%" y="45%" textAnchor="middle" fill="grey" dy=".2em">
+          <Text x='50%' y='45%' textAnchor='middle' fill='grey' dy='.2em'>
             🎊
           </Text>
         )}
 
         <Text
-          x="50%"
-          y="56%"
-          textAnchor="middle"
+          x='50%'
+          y='56%'
+          textAnchor='middle'
           fill={isCompleted ? '#34D399' : 'grey'}
-          dy=".2em"
+          dy='.2em'
           fontSize={4}
         >
           {isCompleted ? "You're done for the day!" : 'tasks remaining'}
