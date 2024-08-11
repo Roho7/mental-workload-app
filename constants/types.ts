@@ -7,18 +7,21 @@ export type PriorityMapType = {
 };
 
 export type PriorityValues = 1 | 2 | 3 | 4 | 0;
+export type MWLValues = 1 | 2 | 3 | 4 | 5;
+export type DifficultyValues = 1 | 2 | 3 | 4 | 5;
 
 export type TaskType = {
   bucket?: string;
   title: string;
   description: string;
   status?: 'done' | 'pending' | 'overdue';
-  difficulty: number;
+  difficulty: DifficultyValues;
   startDate: Timestamp | null;
   endDate: Timestamp | null;
   priority: PriorityValues;
   taskId: string;
   userId: string;
+  experiencedMwl?: MWLValues;
 };
 
 export type GoogleCalendarEventType = {

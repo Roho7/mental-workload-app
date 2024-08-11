@@ -5,7 +5,7 @@ import MwlModal from '@/components/ui/mental-workload/MwlModal';
 import MwlFeedbackLabel from '@/components/ui/MwlFeedbackLabel';
 import TaskCard from '@/components/ui/TaskCard';
 
-import { TaskType } from '@/constants/types';
+import { MWLValues, TaskType } from '@/constants/types';
 import { useToastController } from '@tamagui/toast';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ const DailyMentalWorkloadScreen = () => {
     mwlObject,
     fetchTasksAndMwl,
   } = useTasks();
-  const width = useWindowDimensions().width;
+  const width = useWindowDimensions().width - 10;
 
   const [selectedInterval, setSelectedInterval] = useState<
     'daily' | 'weekly' | 'monthly'
@@ -113,11 +113,11 @@ const DailyMentalWorkloadScreen = () => {
                   setRange={setRange}
                 />
               </XStack>
-              {mwlObject.current[date?.format('DD-MM-YYYY') || ''] ? (
+              {mwlObject?.[date?.format('DD-MM-YYYY') || ''] ? (
                 <MwlFeedbackLabel
                   mwl={
-                    mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.mwl as 1 | 2 | 3 | 4 | 5
+                    mwlObject?.[date?.format('DD-MM-YYYY') || '']
+                      ?.mwl as MWLValues
                   }
                 />
               ) : (
@@ -176,8 +176,8 @@ const DailyMentalWorkloadScreen = () => {
                   borderRadius='$8'
                 >
                   <H2>
-                    {(mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.mwl as 1 | 2 | 3 | 4 | 5) || 0}
+                    {(mwlObject?.[date?.format('DD-MM-YYYY') || '']
+                      ?.mwl as MWLValues) || 0}
                   </H2>
 
                   <Text color='$gray10' textAlign='center'>
@@ -189,9 +189,13 @@ const DailyMentalWorkloadScreen = () => {
           </Card>
           <View flex={1}>
             <Carousel
-              loop={false}
+              loop={true}
+              autoPlay
+              scrollAnimationDuration={1000}
+              autoPlayInterval={6000}
               width={width}
               height={width / 1.5}
+              style={{ width: '100%' }}
               data={[
                 <Graph interval={selectedInterval} date={date} range={range} />,
                 <Card
@@ -201,14 +205,30 @@ const DailyMentalWorkloadScreen = () => {
                   borderWidth='$1'
                   backgroundColor='$background0'
                   borderRadius='$8'
+                  height='100%'
+                  alignItems='center'
                 >
-                  <Text>
-                    {mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                      ?.feedback || ''}
-                  </Text>
+                  <H3>Day's Feedback</H3>
+
+                  {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback ? (
+                    <Text>
+                      {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback}
+                    </Text>
+                  ) : (
+                    <YStack gap='$8'>
+                      <Text color='$gray8'>
+                        Generate workload to receive feedback
+                      </Text>
+                      <Button
+                        color='$color'
+                        onPress={() => setOpenMwlModal(true)}
+                      >
+                        Calculate Workload
+                      </Button>
+                    </YStack>
+                  )}
                 </Card>,
               ]}
-              style={{ width: '100%' }}
               pagingEnabled={true}
               onSnapToItem={(index) => setActiveCardIndex(index)}
               renderItem={({ index, item }) => {
@@ -239,7 +259,7 @@ const DailyMentalWorkloadScreen = () => {
               {[1, 2].map((card, index) => {
                 return (
                   <View
-                    key={index}
+                    key={index + Math.random() * 100}
                     borderRadius={10}
                     backgroundColor={
                       index === activeCardIndex ? '$blue10' : '$gray10'
@@ -256,7 +276,7 @@ const DailyMentalWorkloadScreen = () => {
               <H3>Tasks on {date?.format('YYYY-MM-DD')}</H3>
               {tasksOnSelectedDay.length > 0 ? (
                 tasksOnSelectedDay.map((task, index) => (
-                  <TaskCard task={task} key={index} />
+                  <TaskCard task={task} key={task.taskId} />
                 ))
               ) : (
                 <Text>No tasks</Text>

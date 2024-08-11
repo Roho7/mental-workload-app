@@ -1,7 +1,7 @@
 import { useTasks } from '@/components/hooks/useTasks';
 import TaskCard from '@/components/ui/TaskCard';
 import { MwlMap } from '@/constants/TaskParameters';
-import { TaskType } from '@/constants/types';
+import { MWLValues, TaskType } from '@/constants/types';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -34,9 +34,11 @@ const CalendarScreen = () => {
     };
 
     daysWithTasks.forEach((day) => {
-      markedDates[day.date] = {
+      markedDates[moment(day.date).format('YYYY-MM-DD')] = {
         selected: true,
-        selectedColor: MwlMap[Math.round(day.mwl) || 0]?.color || 'yellow',
+        selectedColor: !day.mwl
+          ? ''
+          : MwlMap[Math.round(day.mwl) as MWLValues]?.color || 'yellow',
         selectedTextColor: 'black',
       };
     });
@@ -46,7 +48,7 @@ const CalendarScreen = () => {
 
   const handleDayPress = (date: string) => {
     setSelectedDate(date);
-    const tasks = getTasksByDate(new Date(date));
+    const tasks = getTasksByDate(moment(date, 'YYYY-MM-DD').toDate());
     setSelectedDateTasks(tasks);
   };
 
@@ -90,7 +92,7 @@ const CalendarScreen = () => {
             <H3>Tasks on {selectedDate}</H3>
             {selectedDateTasks.length > 0 ? (
               selectedDateTasks.map((task, index) => (
-                <TaskCard task={task} key={index} />
+                <TaskCard task={task} key={task.taskId} />
               ))
             ) : (
               <Text>No tasks</Text>

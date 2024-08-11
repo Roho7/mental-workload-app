@@ -1,13 +1,17 @@
-import { TaskType } from '@/constants/types';
+import { multipliersMap } from '@/constants/TaskParameters';
+import { MWLValues, TaskType } from '@/constants/types';
 import { db } from '@/utils/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import gAuth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useToastController } from '@tamagui/toast';
+import { router } from 'expo-router';
 import {
   collection,
   deleteDoc,
   doc,
   getDocs,
+  setDoc,
   updateDoc,
 } from 'firebase/firestore';
 import moment from 'moment';
@@ -17,13 +21,19 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
-  useTransition,
 } from 'react';
+import uuid from 'react-native-uuid';
 
 export type MWLObjectType = {
   [key: string]: { mwl: number; feedback: string };
+};
+
+export type UserDataType = {
+  userId: string;
+  preferences: Record<string, any>;
+  tasks: TaskType[];
+  mwlRecord: MWLObjectType;
 };
 
 type TaskContextType = {
@@ -31,10 +41,11 @@ type TaskContextType = {
   setTasks: (tasks: TaskType[]) => void;
   todaysTasks: TaskType[];
   completedTasks: TaskType[];
-  addTask: (task: TaskType) => void;
-  removeTask: (id: string, task: TaskType) => void;
-  updateTask: (id: string, task: TaskType) => void;
-  daysWithTasks: { date: string; tasks: number; mwl: number }[];
+  addTask: (task: TaskType) => Promise<void>;
+  removeTask: (id: string) => Promise<void>;
+  updateTask: (id: string, newTask: Partial<TaskType>) => Promise<void>;
+  bulkAddTasks: (tasks: Array<TaskType>) => Promise<void>;
+  daysWithTasks: { date: Date; tasks: number; mwl: number | undefined }[];
   getTasksByDate: (date: Date) => TaskType[];
   getTasksByRange: (start: Date, end: Date) => TaskType[];
   generateMentalWorkload: ({
@@ -46,57 +57,46 @@ type TaskContextType = {
     isTemporaryFeedback?: boolean;
     date: moment.Moment | null;
   }) => Promise<any>;
-  fetchTasksAndMwl: () => void;
-  mwlObject: React.MutableRefObject<MWLObjectType>;
+  fetchTasksAndMwl: () => Promise<void>;
+  mwlObject: MWLObjectType | null;
+  todaysApproximateMWL: { values: number[]; avg: MWLValues };
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const user = gAuth().currentUser;
+  const toast = useToastController();
 
   const [tasks, setTasks] = useState<TaskType[]>([]);
-  const [isPending, startTransition] = useTransition();
-  const mwlObject = useRef<MWLObjectType>({});
+  const [mwlObject, setMwlObject] = useState<MWLObjectType | null>(null);
 
-  //   ============================================= //
-  //                       EFFECTS                   //
-  //   ============================================= //
-
-  //   GET TASKS
   const fetchTasksAndMwl = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user');
+      return;
+    }
 
     try {
       const userUid = user.uid;
-
-      // References to the tasks and mwl collections under the specific user
       const taskRef = collection(db, `tbl_users/${userUid}/tasks`);
       const mwlRef = collection(db, `tbl_users/${userUid}/mwl`);
 
-      // Fetch tasks and MWL data concurrently
       const [taskSnapshot, mwlSnapshot] = await Promise.all([
         getDocs(taskRef),
         getDocs(mwlRef),
       ]);
 
-      // Process tasks
-      const tasks = taskSnapshot.docs.map((doc: any) => doc.data());
-      // console.log('Fetched tasks:', tasks); // Log fetched tasks
-
-      // Process MWL data
-      const mwl = mwlSnapshot.docs.reduce(
-        (acc: Record<string, any>, doc: any) => {
-          acc[doc.id] = doc.data();
-          return acc;
-        },
-        {}
+      const fetchedTasks = taskSnapshot.docs.map(
+        (doc) => doc.data() as TaskType
       );
-      // console.log('Fetched MWL:', mwl); // Log fetched MWL
+      const fetchedMwl = mwlSnapshot.docs.reduce<MWLObjectType>((acc, doc) => {
+        acc[doc.id] = doc.data() as { mwl: number; feedback: string };
+        return acc;
+      }, {});
 
-      // Update state for both tasks and MWL
-      setTasks(tasks as TaskType[]);
-      mwlObject.current = mwl as MWLObjectType;
+      setTasks(fetchedTasks);
+      setMwlObject(fetchedMwl);
 
       console.log('Tasks and MWL data set in state');
     } catch (error) {
@@ -106,181 +106,245 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     fetchTasksAndMwl();
-  }, [fetchTasksAndMwl, user]);
+  }, [fetchTasksAndMwl]);
 
-  const addTask = (task: TaskType) => {
-    setTasks([...tasks, task]);
-  };
-
-  const removeTask = (id: string, newTask: TaskType) => {
-    if (!user) throw new Error('User is not authenticated');
-
-    setTasks((prevTasks) => prevTasks.filter((task) => task.taskId !== id));
-    startTransition(() => {
-      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, id);
-      deleteDoc(taskRef).catch((error) => {
-        console.error('Error deleting document: ', error);
-        // Optionally, handle error and revert state if necessary
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task.taskId === id ? { ...task, ...newTask } : task
-          )
-        );
-      });
-    });
-  };
-
-  const updateTask = (id: string, newTask: TaskType) => {
-    if (!user) throw new Error('User is not authenticated');
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.taskId === id ? { ...task, ...newTask } : task
-      )
-    );
-
-    // Perform the database update within the transition
-    startTransition(() => {
-      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, id);
-      updateDoc(taskRef, newTask).catch((error) => {
-        console.error('Error updating document: ', error);
-        // Optionally, handle error and revert state if necessary
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task.taskId === id ? { ...task, ...newTask } : task
-          )
-        );
-      });
-    });
-  };
-
-  // ------------------------------------------------------------------------------ //
-  //                                 MENTAL WORKLOAD                                //
-  // ------------------------------------------------------------------------------ //
-
-  const generateMentalWorkload = async ({
-    dayFeedback,
-    isTemporaryFeedback = false,
-    date,
-  }: {
-    dayFeedback?: Record<string, number>;
-    isTemporaryFeedback?: boolean;
-    date: moment.Moment | null;
-  }) => {
-    if (!date) {
-      throw new Error('No date provided');
-    }
-    const tasks: TaskType[] = getTasksByDate(new Date(date.toString()));
-
-    const formatedTasks = tasks.map((task) => {
-      return {
+  const addTask = useCallback(
+    async (task: TaskType) => {
+      if (!user) throw new Error('User is not authenticated');
+      const newTask = {
         ...task,
-        startDate: moment(task.startDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
-        endDate: moment(task.endDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        userId: user.uid,
+        taskId: uuid.v4().toString(),
       };
-    });
+      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, newTask.taskId);
+      await setDoc(taskRef, newTask);
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+    },
+    [user]
+  );
 
-    const userPreferences = await AsyncStorage.getItem('userPreferences');
+  const removeTask = useCallback(
+    async (id: string) => {
+      if (!user) throw new Error('User is not authenticated');
+      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, id);
+      await deleteDoc(taskRef);
+      setTasks((prevTasks) => prevTasks.filter((task) => task.taskId !== id));
+    },
+    [user]
+  );
 
-    const insertData = {
-      dayFeedback: dayFeedback,
-      preferences: userPreferences ?? '',
-      tasks: formatedTasks,
-      userId: user?.uid,
-      date: date.format('DD-MM-YYYY'),
-    };
-
-    try {
-      const { accessToken } = await GoogleSignin.getTokens();
-      if (!accessToken) {
-        throw new Error('No access token found');
-      }
-      const response = await fetch(
-        // 'http://127.0.0.1:5001/mental-workload-app/us-central1/generateMentalWorkload',
-        'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
-        {
-          body: JSON.stringify(insertData),
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'is-temporary': isTemporaryFeedback ? 'true' : 'false',
-            'Authorization': `Bearer ${accessToken}`,
-          },
-        }
+  const updateTask = useCallback(
+    async (id: string, newTask: Partial<TaskType>) => {
+      if (!user) throw new Error('User is not authenticated');
+      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, id);
+      await updateDoc(taskRef, newTask);
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.taskId === id ? { ...task, ...newTask } : task
+        )
       );
-      console.log('Response:', response);
-      return response.json();
-    } catch (error) {
-      console.error('Error updating document: ', error);
-    }
-  };
-  // ------------------------------------------------------------------------------ //
-  //                                 HELPER FUNCTIONS                               //
-  // ------------------------------------------------------------------------------ //
+    },
+    [user]
+  );
+
   const getTasksByDate = useCallback(
     (date: Date) => {
       return tasks.filter((task) => {
         if (!task.startDate) return false;
-        const dueDate = new Date(task.startDate.toDate() || '');
-        return dueDate.toDateString() === date.toDateString();
+        const taskDate = task.startDate.toDate();
+        return taskDate.toDateString() === date.toDateString();
       });
     },
     [tasks]
   );
 
-  const getTasksByRange = (start: Date, end: Date) => {
-    return tasks.filter((task) => {
-      if (!task.startDate) return false;
-      const dueDate = moment(task.startDate.toDate());
-      return dueDate.isBetween(moment(start), moment(end), 'days', '[]');
-    });
-  };
-  // ------------------------------------------------------------------------------ //
-  //                                     MEMOS                                      //
-  // ------------------------------------------------------------------------------ //
-  const todaysTasks = useMemo(() => {
-    if (!tasks) return [];
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+  const generateMentalWorkload = useCallback(
+    async ({
+      dayFeedback,
+      isTemporaryFeedback = false,
+      date,
+    }: {
+      dayFeedback?: Record<string, number>;
+      isTemporaryFeedback?: boolean;
+      date: moment.Moment | null;
+    }) => {
+      if (!date || !user) {
+        throw new Error('No date provided or user not authenticated');
+      }
+      const tasks = getTasksByDate(new Date(date.toString()));
 
-    return tasks
-      .filter((task) => {
+      const formattedTasks = tasks.map((task) => ({
+        ...task,
+        startDate: moment(task.startDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+        endDate: moment(task.endDate?.toDate()).format('DD-MM-YYYY-HH:mm'),
+      }));
+
+      const userPreferences = await AsyncStorage.getItem('userPreferences');
+
+      const insertData = {
+        dayFeedback,
+        preferences: userPreferences ?? '',
+        tasks: formattedTasks,
+        userId: user.uid,
+        date: date.format('DD-MM-YYYY'),
+      };
+
+      try {
+        const { idToken } = await GoogleSignin.getTokens();
+        if (!idToken) {
+          throw new Error('No id token found');
+        }
+        const response = await fetch(
+          'https://us-central1-mental-workload-app.cloudfunctions.net/generateMentalWorkload',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'is-temporary': isTemporaryFeedback ? 'true' : 'false',
+              'Authorization': `Bearer ${idToken}`,
+            },
+            body: JSON.stringify(insertData),
+          }
+        );
+        return await response.json();
+      } catch (error) {
+        console.error('Error generating mental workload: ', error);
+        throw error;
+      }
+    },
+    [user, getTasksByDate]
+  );
+
+  const getTasksByRange = useCallback(
+    (start: Date, end: Date) => {
+      const startMoment = moment(start);
+      const endMoment = moment(end);
+      return tasks.filter((task) => {
         if (!task.startDate) return false;
-        const dueDate = new Date(task.startDate.toDate() || '');
-        return dueDate >= startOfDay && dueDate <= endOfDay;
-      })
-      .sort((a, b) => (a.status !== 'done' ? -1 : 1));
-  }, [tasks]);
+        const taskDate = moment(task.startDate.toDate());
+        return taskDate.isBetween(startMoment, endMoment, 'day', '[]');
+      });
+    },
+    [tasks]
+  );
+
+  const todaysTasks = useMemo(() => {
+    const today = new Date();
+    return getTasksByDate(today).sort((a, b) => (a.status !== 'done' ? -1 : 1));
+  }, [getTasksByDate]);
 
   const completedTasks = useMemo(() => {
     return todaysTasks.filter((task) => task.status === 'done');
-  }, [tasks, todaysTasks]);
+  }, [todaysTasks]);
 
   const daysWithTasks = useMemo(() => {
-    const dateCount: Record<string, number> = {};
-    const days = tasks.map((task) => {
-      if (!task.startDate) return '';
-      const dueDate = new Date(task.startDate.toDate() || '');
-      const formattedDate = dueDate.toLocaleDateString('en-CA', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
+    const dateCount: Record<string, { tasks: number; mwl?: number }> = {};
+    tasks.forEach((task) => {
+      if (!task.startDate) return;
+      const formattedDate = moment(task.startDate.toDate()).format(
+        'DD-MM-YYYY'
+      );
       if (!dateCount[formattedDate]) {
-        dateCount[formattedDate] = 0;
+        dateCount[formattedDate] = {
+          tasks: 0,
+          mwl: mwlObject?.[formattedDate]?.mwl,
+        };
       }
-      dateCount[formattedDate] += 1;
+      dateCount[formattedDate].tasks += 1;
     });
-    return Object.keys(dateCount).map((date) => ({
-      date,
-      tasks: dateCount[date],
-      mwl: mwlObject.current[date]?.mwl || 0,
+
+    return Object.entries(dateCount).map(([date, { tasks, mwl }]) => ({
+      date: moment(date, 'DD-MM-YYYY').toDate(),
+      tasks,
+      mwl,
     }));
-  }, [tasks]);
+  }, [tasks, mwlObject]);
 
-  const upcomingTasks = useMemo(() => {}, [tasks]);
+  const bulkAddTasks = useCallback(
+    async (newTasks: Array<TaskType>) => {
+      if (!user) {
+        throw new Error('User is not authenticated');
+      }
 
-  const values = useMemo(
+      const tasksToAdd = newTasks.map((task) => ({
+        ...task,
+        userId: user.uid,
+        taskId: uuid.v4().toString(),
+      }));
+
+      await Promise.all(
+        tasksToAdd.map((task) =>
+          setDoc(doc(db, `tbl_users/${user.uid}/tasks`, task.taskId), task)
+        )
+      );
+
+      setTasks((prevTasks) => [...prevTasks, ...tasksToAdd]);
+
+      toast.show('Tasks added!', {
+        native: true,
+      });
+      router.back();
+    },
+    [user, toast]
+  );
+
+  const todaysApproximateMWL = useMemo(() => {
+    const halfHourlyData = new Array(48).fill(0);
+
+    todaysTasks.forEach((task, index) => {
+      const taskStartTime = new Date(task.startDate?.toMillis() || 0);
+      const previousTaskEndTime = new Date(
+        todaysTasks[index > 0 ? index - 1 : 0]?.endDate?.toMillis() || 0
+      );
+      const taskEndTime = new Date(task.endDate?.toMillis() || 0);
+
+      const difficultyMultiplier =
+        multipliersMap.difficulty[task.difficulty] || 1;
+      const priorityMultiplier = multipliersMap.priority[task.priority] || 1;
+      const gapMultiplier =
+        multipliersMap.gap[
+          Math.abs(
+            Math.floor(
+              previousTaskEndTime.getHours() - taskStartTime.getHours()
+            )
+          )
+        ] || 1;
+
+      const startIndex =
+        taskStartTime.getHours() * 2 +
+        Math.floor(taskStartTime.getMinutes() / 30);
+      const endIndex =
+        taskEndTime.getHours() * 2 + Math.ceil(taskEndTime.getMinutes() / 30);
+
+      for (let i = startIndex; i < endIndex; i++) {
+        halfHourlyData[i] +=
+          1 * difficultyMultiplier * priorityMultiplier * gapMultiplier;
+      }
+    });
+
+    halfHourlyData.forEach((value, index) => {
+      if (
+        value > 0 &&
+        index + 4 < halfHourlyData.length &&
+        halfHourlyData[index + 4] > 0
+      ) {
+        if (index + 2 < halfHourlyData.length) halfHourlyData[index + 2] += 2;
+        if (index + 3 < halfHourlyData.length) halfHourlyData[index + 3] += 1;
+      }
+      halfHourlyData[index] = Math.min(value, 4);
+    });
+
+    const nonZeroValues = halfHourlyData.filter((value) => value > 0);
+    const average =
+      nonZeroValues.length > 0
+        ? halfHourlyData.reduce((acc, val) => acc + val, 0) /
+          nonZeroValues.length
+        : 0;
+
+    return { values: halfHourlyData, avg: Math.round(average) as MWLValues };
+  }, [todaysTasks]);
+
+  const contextValue = useMemo(
     () => ({
       tasks,
       setTasks,
@@ -291,20 +355,40 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       addTask,
       removeTask,
       updateTask,
+      bulkAddTasks,
       daysWithTasks,
       getTasksByDate,
       getTasksByRange,
       mwlObject,
+      todaysApproximateMWL,
     }),
-    [tasks]
+    [
+      tasks,
+      todaysTasks,
+      completedTasks,
+      generateMentalWorkload,
+      fetchTasksAndMwl,
+      addTask,
+      removeTask,
+      updateTask,
+      bulkAddTasks,
+      daysWithTasks,
+      getTasksByDate,
+      getTasksByRange,
+      mwlObject,
+      todaysApproximateMWL,
+    ]
   );
-  return <TaskContext.Provider value={values}>{children}</TaskContext.Provider>;
+
+  return (
+    <TaskContext.Provider value={contextValue}>{children}</TaskContext.Provider>
+  );
 };
 
 export const useTasks = () => {
   const taskContext = useContext(TaskContext);
   if (!taskContext) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useTasks must be used within a TaskProvider');
   }
   return taskContext;
 };

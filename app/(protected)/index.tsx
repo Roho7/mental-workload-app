@@ -1,7 +1,10 @@
 import { useAuth } from '@/components/hooks/useAuth';
 import { useTasks } from '@/components/hooks/useTasks';
+import StatsCard from '@/components/ui/StatsCard';
 import TaskCard from '@/components/ui/TaskCard';
-import { Feather } from '@expo/vector-icons';
+import { tipsArray } from '@/constants/TaskParameters';
+import { convertGoogleEventToTask } from '@/utils/calendar';
+import { Feather, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import gAuth from '@react-native-firebase/auth';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
@@ -13,26 +16,17 @@ import {
   Vibration,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import {
-  Button,
-  H1,
-  H2,
-  ScrollView,
-  Text,
-  View,
-  XStack,
-  YStack,
-} from 'tamagui';
+import { Button, H1, H2, ScrollView, Text, View, YStack } from 'tamagui';
+import DayDistributionCard from '../../components/ui/homepage/DayDistributionCard';
 import DonutCard from '../../components/ui/homepage/DonutCard';
-import WeeklyCard from '../../components/ui/homepage/WeeklyCard';
-const cardArray = [<DonutCard />, <WeeklyCard />];
 
 export default function TabOneScreen() {
   const width = useWindowDimensions().width;
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const { logout } = useAuth();
-  const { todaysTasks, fetchTasksAndMwl } = useTasks();
+  const { logout, getCalendarEvents } = useAuth();
+  const { todaysTasks, fetchTasksAndMwl, todaysApproximateMWL, bulkAddTasks } =
+    useTasks();
   const toast = useToastController();
   const user = gAuth().currentUser;
 
@@ -59,51 +53,73 @@ export default function TabOneScreen() {
         }
       >
         <YStack gap='$4' flex={1}>
-          <H1>Hi {user?.displayName || 'user'}!</H1>
-
-          <View>
-            <Carousel
-              loop={false}
-              width={width}
-              height={width / 1.5}
-              data={cardArray}
-              style={{ width: '100%' }}
-              pagingEnabled={true}
-              onSnapToItem={(index) => setActiveCardIndex(index)}
-              renderItem={({ index, item }) => (
-                <View
-                  key={index}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <View style={{ width: '90%' }}>{item}</View>
+          <H1>Hi {user?.displayName?.split(' ')[0] || 'user'}!</H1>
+          <Carousel
+            loop={true}
+            snapEnabled={true}
+            autoPlay
+            autoPlayInterval={8000}
+            width={width}
+            height={100}
+            data={tipsArray.map((tip, index) => (
+              <Text>{tip}</Text>
+            ))}
+            pagingEnabled={true}
+            onSnapToItem={(index) => setActiveCardIndex(index)}
+            renderItem={({ index, item }) => (
+              <StatsCard
+                key={index + Math.random() * 100}
+                color='yellow'
+                style={{ height: 100, width: '90%' }}
+                badge={
+                  <FontAwesome5 name='lightbulb' size={14} color='yellow' />
+                }
+              >
+                <Text fontSize={10}>Tip</Text>
+                <View height='100%'>
+                  <Text color='$yellow' fontSize={14}>
+                    {item}
+                  </Text>
                 </View>
-              )}
-            />
-            <XStack
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-              }}
-              gap='$2'
-              paddingTop='$4'
+              </StatsCard>
+            )}
+          />
+          <DonutCard />
+
+          <View
+            display='flex'
+            flexDirection='row'
+            gap='$2'
+            width='100%'
+            position='relative'
+          >
+            <StatsCard
+              color='green'
+              badge={<FontAwesome5 name='brain' size={14} color='green' />}
             >
-              {cardArray.map((_, index) => (
-                <View
-                  key={index}
-                  borderRadius={10}
-                  backgroundColor={
-                    index === activeCardIndex ? '#007aff' : 'gray'
-                  }
-                  height={4}
-                  width={4}
-                />
-              ))}
-            </XStack>
+              <Text fontSize={10}>Today</Text>
+              <View>
+                <Text color='$green9' fontSize={16}>
+                  Approx. MWL
+                </Text>
+                <H1>{todaysApproximateMWL.avg}</H1>
+              </View>
+            </StatsCard>
+            <StatsCard
+              color='orange'
+              badge={<FontAwesome5 name='brain' size={14} color='orange' />}
+            >
+              <Text fontSize={10}>This week</Text>
+              <View>
+                <Text color='$orange9' fontSize={16}>
+                  Calculated MWL
+                </Text>
+                <H1>{todaysApproximateMWL.avg}</H1>
+              </View>
+            </StatsCard>
           </View>
+          <DayDistributionCard />
+
           <View>
             <H2>Today's Tasks</H2>
             {todaysTasks && todaysTasks.length > 0 ? (
@@ -120,6 +136,32 @@ export default function TabOneScreen() {
                   icon={<Feather name='plus' color='white' />}
                 >
                   Add Tasks
+                </Button>
+                <Button
+                  backgroundColor='white'
+                  color='$accentColor'
+                  borderWidth='$1'
+                  borderColor='$blue10'
+                  height={50}
+                  onPress={async () => {
+                    const calendarTasks = await getCalendarEvents();
+
+                    if (!calendarTasks || calendarTasks?.length === 0) {
+                      toast.show('No tasks in your calendar', {
+                        native: true,
+                      });
+                      return;
+                    }
+
+                    bulkAddTasks(
+                      calendarTasks?.map((event) =>
+                        convertGoogleEventToTask(event, user?.uid || '')
+                      )
+                    );
+                  }}
+                >
+                  <FontAwesome name='google' color='#3498db' />
+                  Sync with Google Calendar
                 </Button>
               </YStack>
             )}

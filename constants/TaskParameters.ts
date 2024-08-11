@@ -1,5 +1,5 @@
 import { MwlType } from '@/components/ui/DifficultyBadge';
-import { PriorityMapType } from './types';
+import { MWLValues, PriorityMapType } from './types';
 
 export const PriorityMap: Record<number, PriorityMapType> = {
   4: {
@@ -29,7 +29,7 @@ export const PriorityMap: Record<number, PriorityMapType> = {
   },
 };
 
-export const MwlMap: Record<number, MwlType> = {
+export const MwlMap: Record<MWLValues, MwlType> = {
   5: {
     color: '#DA7979',
     text: 'Overload',
@@ -66,3 +66,18 @@ export const MwlMap: Record<number, MwlType> = {
     feedbackText: 'Not enough challenge',
   },
 };
+
+export const multipliersMap: Record<string, any> = {
+  difficulty: { 1: 0.5, 2: 1, 3: 1.5, 4: 1.7, 5: 2 },
+  priority: { 0: 0.7, 1: 1, 2: 1.2, 3: 1.5, 4: 1.7 },
+  gap: { 0: 1.7, 1: 1, 2: 0.5 },
+};
+
+export const tipsArray = [
+  'Take a break every 25 minutes',
+  'Try not to multitask whenever possible',
+  'Stay hydrated',
+  'A good night sleep can make a huge difference',
+  'Always keep gaps between tasks to avoid burnout',
+  'Try to do one difficult task a day, to keep the brain sharp',
+];

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 
-import { TaskType } from '@/constants/types';
+import { MwlMap } from '@/constants/TaskParameters';
+import { MWLValues, TaskType } from '@/constants/types';
 import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Pressable, Vibration } from 'react-native';
 import OutsidePressHandler from 'react-native-outside-press';
-import { Button, H4, Text, View, XStack, YStack } from 'tamagui';
+import { Button, H4, Spinner, Text, View, XStack, YStack } from 'tamagui';
 import { useTasks } from '../hooks/useTasks';
 import MwlBadge from './DifficultyBadge';
 import PriorityBadge from './PriorityBadge';
@@ -12,6 +14,7 @@ import PriorityBadge from './PriorityBadge';
 const TaskCard = ({ task }: { task: TaskType }) => {
   const [showActions, setShowActions] = useState(false);
   const { updateTask, removeTask } = useTasks();
+  const [loading, setLoading] = useState(false);
   const handleLongPress = () => {
     if (task.status === 'done') return;
     Vibration.vibrate(100);
@@ -19,13 +22,37 @@ const TaskCard = ({ task }: { task: TaskType }) => {
   };
 
   const handleCompleteTask = (task: TaskType) => {
+    setLoading(true);
     updateTask(task.taskId, { ...task, status: 'done' });
     setShowActions(false);
+    setLoading(false);
   };
   const handleDeleteTask = (task: TaskType) => {
-    removeTask(task.taskId, task);
+    setLoading(true);
+    removeTask(task.taskId);
     setShowActions(false);
+    setLoading(false);
   };
+  const handleUpdateExperience = (task: TaskType, experience: MWLValues) => {
+    setLoading(true);
+    updateTask(task.taskId, { ...task, experiencedMwl: experience });
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <YStack
+        style={{
+          height: '100%',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spinner size='large' color='$color10' />
+      </YStack>
+    );
+  }
 
   return (
     <OutsidePressHandler
@@ -72,6 +99,27 @@ const TaskCard = ({ task }: { task: TaskType }) => {
               <Text color='$blue8'>
                 {task.startDate?.toDate().toDateString()}
               </Text>
+              {task.status === 'done' && !task.experiencedMwl && (
+                <>
+                  <Text color='$gray10' fontSize={10}>
+                    How much mental workload did you experience doing this task?
+                  </Text>
+                  <XStack gap='$1' width='100%'>
+                    {Object.keys(MwlMap).map((value) => (
+                      <Button
+                        onPress={() =>
+                          handleUpdateExperience(
+                            task,
+                            parseInt(value) as MWLValues
+                          )
+                        }
+                      >
+                        <Text>{value}</Text>
+                      </Button>
+                    ))}
+                  </XStack>
+                </>
+              )}
             </YStack>
           ) : (
             <YStack gap='$2'>
@@ -82,8 +130,11 @@ const TaskCard = ({ task }: { task: TaskType }) => {
                 <Text color='white'>Complete Task</Text>
                 <Feather name='check-circle' color='white' />
               </Button>
-              <Button theme='purple'>
-                <Text color='white'>Reschedule</Text>
+              <Button
+                theme='purple'
+                onPress={() => router.replace(`/add-task/${task.taskId}`)}
+              >
+                <Text color='white'>Edit</Text>
                 <Feather name='calendar' color='white' />
               </Button>
               <Button theme='red' onPress={() => handleDeleteTask(task)}>
