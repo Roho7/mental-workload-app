@@ -3,7 +3,8 @@ import { useTasks } from '@/components/hooks/useTasks';
 import StatsCard from '@/components/ui/StatsCard';
 import TaskCard from '@/components/ui/TaskCard';
 import { tipsArray } from '@/constants/TaskParameters';
-import { Feather, FontAwesome5 } from '@expo/vector-icons';
+import { convertGoogleEventToTask } from '@/utils/calendar';
+import { Feather, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import gAuth from '@react-native-firebase/auth';
 import { useToastController } from '@tamagui/toast';
 import { router } from 'expo-router';
@@ -19,28 +20,13 @@ import { Button, H1, H2, ScrollView, Text, View, YStack } from 'tamagui';
 import DayDistributionCard from '../../components/ui/homepage/DayDistributionCard';
 import DonutCard from '../../components/ui/homepage/DonutCard';
 
-const cardArray = tipsArray.map((tip, index) => {
-  <StatsCard
-    key={index + Math.random() * 100}
-    color='yellow'
-    style={{ height: 100, width: '100%' }}
-    badge={<FontAwesome5 name='lightbulb' size={14} color='yellow' />}
-  >
-    <Text fontSize={10}>Tip</Text>
-    <View>
-      <Text color='$yellow' fontSize={14}>
-        {tip}
-      </Text>
-    </View>
-  </StatsCard>;
-});
-
 export default function TabOneScreen() {
   const width = useWindowDimensions().width;
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const { logout } = useAuth();
-  const { todaysTasks, fetchTasksAndMwl, todaysApproximateMWL } = useTasks();
+  const { logout, getCalendarEvents } = useAuth();
+  const { todaysTasks, fetchTasksAndMwl, todaysApproximateMWL, bulkAddTasks } =
+    useTasks();
   const toast = useToastController();
   const user = gAuth().currentUser;
 
@@ -99,7 +85,6 @@ export default function TabOneScreen() {
             )}
           />
           <DonutCard />
-          <DayDistributionCard />
 
           <View
             display='flex'
@@ -133,6 +118,8 @@ export default function TabOneScreen() {
               </View>
             </StatsCard>
           </View>
+          <DayDistributionCard />
+
           <View>
             <H2>Today's Tasks</H2>
             {todaysTasks && todaysTasks.length > 0 ? (
@@ -149,6 +136,32 @@ export default function TabOneScreen() {
                   icon={<Feather name='plus' color='white' />}
                 >
                   Add Tasks
+                </Button>
+                <Button
+                  backgroundColor='white'
+                  color='$accentColor'
+                  borderWidth='$1'
+                  borderColor='$blue10'
+                  height={50}
+                  onPress={async () => {
+                    const calendarTasks = await getCalendarEvents();
+
+                    if (!calendarTasks || calendarTasks?.length === 0) {
+                      toast.show('No tasks in your calendar', {
+                        native: true,
+                      });
+                      return;
+                    }
+
+                    bulkAddTasks(
+                      calendarTasks?.map((event) =>
+                        convertGoogleEventToTask(event, user?.uid || '')
+                      )
+                    );
+                  }}
+                >
+                  <FontAwesome name='google' color='#3498db' />
+                  Sync with Google Calendar
                 </Button>
               </YStack>
             )}

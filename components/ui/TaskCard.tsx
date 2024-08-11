@@ -29,7 +29,7 @@ const TaskCard = ({ task }: { task: TaskType }) => {
   };
   const handleDeleteTask = (task: TaskType) => {
     setLoading(true);
-    removeTask(task.taskId, task);
+    removeTask(task.taskId);
     setShowActions(false);
     setLoading(false);
   };
