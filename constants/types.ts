@@ -7,7 +7,7 @@ export type PriorityMapType = {
 };
 
 export type PriorityValues = 1 | 2 | 3 | 4 | 0;
-export type MWLValues = 0 | 1 | 2 | 3 | 4;
+export type MWLValues = 1 | 2 | 3 | 4 | 5;
 export type DifficultyValues = 1 | 2 | 3 | 4 | 5;
 
 export type TaskType = {

@@ -113,10 +113,10 @@ const DailyMentalWorkloadScreen = () => {
                   setRange={setRange}
                 />
               </XStack>
-              {mwlObject.current[date?.format('DD-MM-YYYY') || ''] ? (
+              {mwlObject?.[date?.format('DD-MM-YYYY') || ''] ? (
                 <MwlFeedbackLabel
                   mwl={
-                    mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                    mwlObject?.[date?.format('DD-MM-YYYY') || '']
                       ?.mwl as MWLValues
                   }
                 />
@@ -176,7 +176,7 @@ const DailyMentalWorkloadScreen = () => {
                   borderRadius='$8'
                 >
                   <H2>
-                    {(mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
+                    {(mwlObject?.[date?.format('DD-MM-YYYY') || '']
                       ?.mwl as MWLValues) || 0}
                   </H2>
 
@@ -210,13 +210,9 @@ const DailyMentalWorkloadScreen = () => {
                 >
                   <H3>Day's Feedback</H3>
 
-                  {mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                    ?.feedback ? (
+                  {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback ? (
                     <Text>
-                      {
-                        mwlObject?.current?.[date?.format('DD-MM-YYYY') || '']
-                          ?.feedback
-                      }
+                      {mwlObject?.[date?.format('DD-MM-YYYY') || '']?.feedback}
                     </Text>
                   ) : (
                     <YStack gap='$8'>
@@ -263,7 +259,7 @@ const DailyMentalWorkloadScreen = () => {
               {[1, 2].map((card, index) => {
                 return (
                   <View
-                    key={index}
+                    key={index + Math.random() * 100}
                     borderRadius={10}
                     backgroundColor={
                       index === activeCardIndex ? '$blue10' : '$gray10'
@@ -280,7 +276,7 @@ const DailyMentalWorkloadScreen = () => {
               <H3>Tasks on {date?.format('YYYY-MM-DD')}</H3>
               {tasksOnSelectedDay.length > 0 ? (
                 tasksOnSelectedDay.map((task, index) => (
-                  <TaskCard task={task} key={index} />
+                  <TaskCard task={task} key={task.taskId} />
                 ))
               ) : (
                 <Text>No tasks</Text>

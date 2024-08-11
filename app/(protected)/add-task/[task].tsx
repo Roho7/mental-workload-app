@@ -7,12 +7,9 @@ import Dropdown from '@/components/ui/Dropdown';
 
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import { PriorityMap } from '@/constants/TaskParameters';
-import {
-  DifficultyValues,
-  GoogleCalendarEventType,
-  PriorityValues,
-  TaskType,
-} from '@/constants/types';
+import { DifficultyValues, PriorityValues, TaskType } from '@/constants/types';
+import uuid from 'react-native-uuid';
+
 import { db } from '@/utils/firebase';
 import { useToastController } from '@tamagui/toast';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -22,9 +19,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 
 import { useAuth } from '@/components/hooks/useAuth';
+import { convertGoogleEventToTask } from '@/utils/calendar';
 import { FontAwesome } from '@expo/vector-icons';
 import gAuth from '@react-native-firebase/auth';
-import uuid from 'react-native-uuid';
 import {
   Button,
   H2,
@@ -40,7 +37,7 @@ const AddTask = ({}) => {
   const user = gAuth().currentUser;
   const local = useLocalSearchParams();
   const { getCalendarEvents } = useAuth();
-  const { fetchTasksAndMwl, tasks } = useTasks();
+  const { fetchTasksAndMwl, tasks, bulkAddTasks } = useTasks();
   const editTaskData = useRef<TaskType | null>(null);
   const toast = useToastController();
   const [title, setTitle] = useState<string | undefined>();
@@ -90,55 +87,6 @@ const AddTask = ({}) => {
     reset();
     fetchTasksAndMwl();
     router.back();
-  };
-
-  const bulkAddTasks = async (tasks: Array<TaskType>) => {
-    if (!user) {
-      return;
-    }
-
-    tasks.forEach(async (task) => {
-      const insertData: TaskType = {
-        ...task,
-        userId: user.uid,
-        taskId: uuid.v4().toString(),
-      };
-
-      const taskRef = doc(db, `tbl_users/${user.uid}/tasks`, insertData.taskId);
-      await setDoc(taskRef, insertData);
-    });
-
-    toast.show('Tasks added!', {
-      native: true,
-    });
-    router.back();
-  };
-
-  const convertGoogleEventToTask = (
-    event: GoogleCalendarEventType,
-    userId: string
-  ): TaskType => {
-    const priority = 0; // default priority
-    const description = event.summary; // Using event summary as description
-    const difficulty = 1; // Default difficulty
-    const bucket = event.organizer.email; // Default bucket
-
-    return {
-      bucket: bucket,
-      title: event.summary,
-      description: description || 'No description available',
-      status: 'pending', // default status
-      difficulty: difficulty,
-      startDate: event.start.dateTime
-        ? Timestamp.fromDate(new Date(event.start.dateTime))
-        : null,
-      endDate: event.end.dateTime
-        ? Timestamp.fromDate(new Date(event.end.dateTime))
-        : null,
-      priority: priority,
-      taskId: event.id,
-      userId: userId,
-    };
   };
 
   useEffect(() => {
@@ -274,13 +222,22 @@ const AddTask = ({}) => {
           Save
         </Button>
         <Button
-          theme='light_blue'
-          borderWidth='$0.25'
-          borderColor='light_blue'
+          backgroundColor='white'
+          color='$accentColor'
+          borderWidth='$1'
+          borderColor='$blue10'
           height={50}
+          icon={<FontAwesome name='google' color='#3498db' />}
           onPress={async () => {
             const calendarTasks = await getCalendarEvents();
-            if (!calendarTasks) return;
+
+            if (!calendarTasks || calendarTasks?.length === 0) {
+              toast.show('No tasks in your calendar', {
+                native: true,
+              });
+              return;
+            }
+
             bulkAddTasks(
               calendarTasks?.map((event) =>
                 convertGoogleEventToTask(event, user?.uid || '')
@@ -288,7 +245,6 @@ const AddTask = ({}) => {
             );
           }}
         >
-          <FontAwesome name='google' color='white' />
           Sync with Google Calendar
         </Button>
       </YStack>

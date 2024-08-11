@@ -73,10 +73,13 @@ const DateNavigator = ({
   const getMarkedDates = () => {
     let markedDates: { [key: string]: any } = {};
     daysWithTasks.forEach((day) => {
-      markedDates[day.date] = {
+      markedDates[moment(day.date).format('YYYY-MM-DD')] = {
         selected: true,
         marked: true,
-        dotColor: MwlMap[day.mwl]?.color || 'yellow',
+        dotColor: !day.mwl
+          ? ''
+          : // @ts-ignore
+            MwlMap[Math.round(day.mwl) as MWLValues]?.color || 'yellow',
         textColor: '#7E7E7E',
       };
     });
